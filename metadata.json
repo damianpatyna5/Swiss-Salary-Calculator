@@ -2,5 +2,7 @@
   "name": "Swiss Salary & Tax Calculator",
   "description": "Accurate Swiss net salary, social security, child allowance, and tax calculator across all 26 cantons.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

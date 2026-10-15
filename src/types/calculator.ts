@@ -35,6 +35,7 @@ export interface CalculatorInputs {
   spouseNumberOfMonths: 12 | 13;
   spouseAge: number;
   spousePillar3aContribution: number;
+  spouseIsChurchMember: boolean; // Yes / No
   // Children & Family
   childrenUnder16: number;
   childrenEducation: number; // 16-25 in education
@@ -122,6 +123,10 @@ export interface IndividualSalaryResult {
   taxShareAnnual: number;
   taxShareMonthly: number;
   effectiveTaxRate: number;
+  federalTaxAnnual?: number;
+  cantonalTaxAnnual?: number;
+  municipalTaxAnnual?: number;
+  churchTaxAnnual?: number;
   netPayAnnual: number;
   netPayMonthly: number;
   totalRetentionRate: number;

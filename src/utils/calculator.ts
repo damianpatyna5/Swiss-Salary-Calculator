@@ -242,6 +242,7 @@ export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResul
     childrenEducation,
     age,
     isChurchMember = false,
+    spouseIsChurchMember = false,
     pillar3aContribution = 0,
     includeHealthInsurance = false,
     nbuRate = 1.2,
@@ -369,15 +370,33 @@ export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResul
   const municipalTaxAnnual = municipalTax;
   const municipalTaxMonthly = municipalTaxAnnual / 12;
 
-  // Church Tax
-  let churchTaxAnnual = 0;
-  if (
-    canton.hasChurchTax &&
-    isChurchMember &&
-    cantonalTaxAnnual > 0
-  ) {
-    churchTaxAnnual = cantonalTaxAnnual * (canton.churchTaxRate / 100);
+  // Church Tax (calculated for primary and spouse individually)
+  const primaryShareRatio =
+    isDualIncome && householdGrossAnnual > 0
+      ? primaryGrossAnnual / householdGrossAnnual
+      : 1;
+
+  let primaryChurchTax = 0;
+  let spouseChurchTax = 0;
+
+  if (canton.hasChurchTax && cantonalTaxAnnual > 0) {
+    if (isDualIncome) {
+      if (isChurchMember) {
+        primaryChurchTax =
+          cantonalTaxAnnual * primaryShareRatio * (canton.churchTaxRate / 100);
+      }
+      if (spouseIsChurchMember) {
+        spouseChurchTax =
+          cantonalTaxAnnual * (1 - primaryShareRatio) * (canton.churchTaxRate / 100);
+      }
+    } else {
+      if (isChurchMember) {
+        primaryChurchTax = cantonalTaxAnnual * (canton.churchTaxRate / 100);
+      }
+    }
   }
+
+  const churchTaxAnnual = primaryChurchTax + spouseChurchTax;
   const churchTaxMonthly = churchTaxAnnual / 12;
 
   const totalTaxAnnual =
@@ -403,13 +422,13 @@ export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResul
   };
 
   // 5. Apportion Tax Between Primary and Spouse
+  const baseTaxesAnnual = federalTaxAnnual + cantonalTaxAnnual + municipalTaxAnnual;
   let primaryTaxShareAnnual = totalTaxAnnual;
   let spouseTaxShareAnnual = 0;
 
   if (isDualIncome && householdGrossAnnual > 0) {
-    const primaryShareRatio = primaryGrossAnnual / householdGrossAnnual;
-    primaryTaxShareAnnual = totalTaxAnnual * primaryShareRatio;
-    spouseTaxShareAnnual = totalTaxAnnual * (1 - primaryShareRatio);
+    primaryTaxShareAnnual = baseTaxesAnnual * primaryShareRatio + primaryChurchTax;
+    spouseTaxShareAnnual = baseTaxesAnnual * (1 - primaryShareRatio) + spouseChurchTax;
   }
 
   const primaryNetPayAnnual =
@@ -435,6 +454,10 @@ export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResul
       primaryGrossAnnual > 0
         ? (primaryTaxShareAnnual / primaryGrossAnnual) * 100
         : 0,
+    federalTaxAnnual: federalTaxAnnual * primaryShareRatio,
+    cantonalTaxAnnual: cantonalTaxAnnual * primaryShareRatio,
+    municipalTaxAnnual: municipalTaxAnnual * primaryShareRatio,
+    churchTaxAnnual: primaryChurchTax,
     netPayAnnual: primaryNetPayAnnual,
     netPayMonthly: primaryNetPayMonthly,
     totalRetentionRate:
@@ -467,6 +490,10 @@ export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResul
         spouseGrossAnnual > 0
           ? (spouseTaxShareAnnual / spouseGrossAnnual) * 100
           : 0,
+      federalTaxAnnual: federalTaxAnnual * (1 - primaryShareRatio),
+      cantonalTaxAnnual: cantonalTaxAnnual * (1 - primaryShareRatio),
+      municipalTaxAnnual: municipalTaxAnnual * (1 - primaryShareRatio),
+      churchTaxAnnual: spouseChurchTax,
       netPayAnnual: spouseNetPayAnnual,
       netPayMonthly: spouseNetPayMonthly,
       totalRetentionRate:

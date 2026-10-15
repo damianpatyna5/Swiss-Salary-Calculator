@@ -32,6 +32,7 @@ const DEFAULT_INPUTS: CalculatorInputs = {
   spouseNumberOfMonths: 12,
   spouseAge: 32,
   spousePillar3aContribution: 0,
+  spouseIsChurchMember: false,
   childrenUnder16: 0,
   childrenEducation: 0,
   age: 32,
@@ -71,117 +72,84 @@ export default function App() {
         setActiveSection={setActiveSection}
       />
 
-      {/* Hero Headline and Key Figure Banner */}
-      <div className="bg-white border-b border-slate-200 py-8 px-4 sm:px-6 lg:px-8 no-print">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 text-xs font-semibold text-red-600 mb-1.5 uppercase tracking-wider">
-                <span>Switzerland Net Salary & Tax Calculator</span>
-                <span>·</span>
-                <span>All 26 Cantons</span>
-              </div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
-                Calculate Your Real Swiss Net Pay & Taxes
-              </h1>
-              <p className="text-sm text-slate-500 mt-1 max-w-2xl text-balance">
-                Accurate breakdown of AHV/IV/EO, ALV, BVG pension, cantonal child allowances,
-                church tax, and multi-tier income tax across all Swiss cantons.
-              </p>
+      {/* Hero Headline and Quick Navigation */}
+      <div className="bg-white border-b border-slate-200 py-6 px-4 sm:px-6 lg:px-8 no-print">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-semibold text-red-600 mb-1 uppercase tracking-wider">
+              <span>Switzerland Net Salary &amp; Tax Calculator</span>
+              <span>·</span>
+              <span>2026 Guidelines</span>
             </div>
-
-            {/* Top Quick Status Pill-less KPI */}
-            <div className="flex items-center gap-6 bg-slate-50 border border-slate-200/80 rounded-xl p-4 shrink-0">
-              <div>
-                <span className="text-[11px] font-semibold text-slate-500 block">
-                  Net Monthly Payout
-                </span>
-                <span className="text-xl sm:text-2xl font-extrabold text-slate-900 font-mono tabular-nums">
-                  {formatCHF(result.netPayMonthly)}
-                </span>
-              </div>
-              <div className="h-8 w-px bg-slate-200" />
-              <div>
-                <span className="text-[11px] font-semibold text-slate-500 block">
-                  Effective Tax Rate
-                </span>
-                <span className="text-xl sm:text-2xl font-extrabold text-red-600 font-mono tabular-nums">
-                  {formatPercent(result.tax.effectiveTaxRate)}
-                </span>
-              </div>
-              <div className="h-8 w-px bg-slate-200" />
-              <div>
-                <span className="text-[11px] font-semibold text-slate-500 block">
-                  Canton
-                </span>
-                <span className="text-xl sm:text-2xl font-extrabold text-slate-800 font-mono">
-                  {result.canton.code}
-                </span>
-              </div>
-            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              Swiss Net Salary &amp; Tax Calculator
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+              Accurate calculation of AHV/IV/EO, ALV, BVG pension, family allowances, and taxes across all 26 cantons.
+            </p>
           </div>
 
           {/* Quick Tab Bar */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 border-t border-slate-100 pt-3">
+          <div className="flex items-center gap-1.5 overflow-x-auto p-1 bg-slate-100 rounded-xl self-start md:self-auto shrink-0">
             <button
               type="button"
               onClick={() => setActiveSection('calculator')}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                 activeSection === 'calculator'
-                  ? 'bg-slate-900 text-white'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <Wallet className="w-3.5 h-3.5" />
-              Calculator & Overview
+              <Wallet className="w-3.5 h-3.5 text-red-600" />
+              Calculator &amp; Overview
             </button>
             <button
               type="button"
               onClick={() => setActiveSection('payslip')}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                 activeSection === 'payslip'
-                  ? 'bg-slate-900 text-white'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <FileText className="w-3.5 h-3.5" />
+              <FileText className="w-3.5 h-3.5 text-slate-500" />
               Payslip (Lohnabrechnung)
             </button>
             <button
               type="button"
               onClick={() => setActiveSection('cantons')}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                 activeSection === 'cantons'
-                  ? 'bg-slate-900 text-white'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <Building2 className="w-3.5 h-3.5" />
-              Compare All 26 Cantons
+              <Building2 className="w-3.5 h-3.5 text-slate-500" />
+              Compare 26 Cantons
             </button>
             <button
               type="button"
               onClick={() => setActiveSection('employer')}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                 activeSection === 'employer'
-                  ? 'bg-slate-900 text-white'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <Briefcase className="w-3.5 h-3.5" />
+              <Briefcase className="w-3.5 h-3.5 text-slate-500" />
               Employer Cost
             </button>
             <button
               type="button"
               onClick={() => setActiveSection('guide')}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                 activeSection === 'guide'
-                  ? 'bg-slate-900 text-white'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <HelpCircle className="w-3.5 h-3.5" />
-              Swiss Salary Guide
+              <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
+              Guide
             </button>
           </div>
         </div>
@@ -202,10 +170,13 @@ export default function App() {
               <SalaryInputForm inputs={inputs} onChange={setInputs} />
             </div>
 
-            {/* Right 7 Cols: Real-time Analysis & Payslip preview */}
+            {/* Right 7 Cols: Streamlined Real-time Overview */}
             <div className="lg:col-span-7 space-y-6">
-              <TaxBreakdownCard result={result} />
-              <PayslipView result={result} onPrint={handlePrint} />
+              <TaxBreakdownCard
+                result={result}
+                onNavigateToPayslip={() => setActiveSection('payslip')}
+                onNavigateToCantons={() => setActiveSection('cantons')}
+              />
             </div>
           </div>
         )}

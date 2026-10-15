@@ -72,13 +72,29 @@ export const PayslipView: React.FC<PayslipViewProps> = ({ result, onPrint }) => 
     ? activeProfile.taxShareAnnual / result.tax.totalTaxAnnual
     : 1;
 
-  const fedTax = (isMonthly ? result.tax.federalTaxMonthly : result.tax.federalTaxAnnual) * taxRatio;
-  const cantonalTax =
-    (isMonthly ? result.tax.cantonalTaxMonthly : result.tax.cantonalTaxAnnual) * taxRatio;
-  const municipalTax =
-    (isMonthly ? result.tax.municipalTaxMonthly : result.tax.municipalTaxAnnual) * taxRatio;
-  const churchTax =
-    (isMonthly ? result.tax.churchTaxMonthly : result.tax.churchTaxAnnual) * taxRatio;
+  const fedTax = isCombinedView
+    ? isMonthly ? result.tax.federalTaxMonthly : result.tax.federalTaxAnnual
+    : activeProfile.federalTaxAnnual !== undefined
+    ? isMonthly ? activeProfile.federalTaxAnnual / 12 : activeProfile.federalTaxAnnual
+    : (isMonthly ? result.tax.federalTaxMonthly : result.tax.federalTaxAnnual) * taxRatio;
+
+  const cantonalTax = isCombinedView
+    ? isMonthly ? result.tax.cantonalTaxMonthly : result.tax.cantonalTaxAnnual
+    : activeProfile.cantonalTaxAnnual !== undefined
+    ? isMonthly ? activeProfile.cantonalTaxAnnual / 12 : activeProfile.cantonalTaxAnnual
+    : (isMonthly ? result.tax.cantonalTaxMonthly : result.tax.cantonalTaxAnnual) * taxRatio;
+
+  const municipalTax = isCombinedView
+    ? isMonthly ? result.tax.municipalTaxMonthly : result.tax.municipalTaxAnnual
+    : activeProfile.municipalTaxAnnual !== undefined
+    ? isMonthly ? activeProfile.municipalTaxAnnual / 12 : activeProfile.municipalTaxAnnual
+    : (isMonthly ? result.tax.municipalTaxMonthly : result.tax.municipalTaxAnnual) * taxRatio;
+
+  const churchTax = isCombinedView
+    ? isMonthly ? result.tax.churchTaxMonthly : result.tax.churchTaxAnnual
+    : activeProfile.churchTaxAnnual !== undefined
+    ? isMonthly ? activeProfile.churchTaxAnnual / 12 : activeProfile.churchTaxAnnual
+    : (isMonthly ? result.tax.churchTaxMonthly : result.tax.churchTaxAnnual) * taxRatio;
   const totalTax = isCombinedView
     ? isMonthly
       ? result.tax.totalTaxMonthly
