@@ -112,8 +112,8 @@ export const SalaryInputForm: React.FC<SalaryInputFormProps> = ({ inputs, onChan
         </div>
 
         {/* Red Promoted Salary Entry Box */}
-        <div className="flex items-stretch rounded-xl border-2 border-red-500 bg-white shadow-xs focus-within:ring-4 focus-within:ring-red-500/15 focus-within:border-red-600 transition-all overflow-hidden">
-          <div className="bg-red-600 text-white font-bold text-sm px-4 flex items-center justify-center select-none font-mono tracking-wide">
+        <div className="flex items-stretch rounded-xl border-2 border-red-400 bg-white shadow-xs focus-within:ring-4 focus-within:ring-red-300/15 focus-within:border-red-400 transition-all overflow-hidden">
+          <div className="bg-red-300 text-white font-bold text-sm px-4 flex items-center justify-center select-none font-mono tracking-wide">
             CHF
           </div>
           <input
@@ -455,8 +455,8 @@ export const SalaryInputForm: React.FC<SalaryInputFormProps> = ({ inputs, onChan
               </div>
 
               {/* Red Promoted Salary Entry Box */}
-              <div className="flex items-stretch rounded-xl border-2 border-red-500 bg-white shadow-xs focus-within:ring-4 focus-within:ring-red-500/15 focus-within:border-red-600 transition-all overflow-hidden">
-                <div className="bg-red-600 text-white font-bold text-sm px-4 flex items-center justify-center select-none font-mono tracking-wide">
+              <div className="flex items-stretch rounded-xl border-2 border-red-400 bg-white shadow-xs focus-within:ring-4 focus-within:ring-red-300/15 focus-within:border-red-400 transition-all overflow-hidden">
+                <div className="bg-red-300 text-white font-bold text-sm px-4 flex items-center justify-center select-none font-mono tracking-wide">
                   CHF
                 </div>
                 <input

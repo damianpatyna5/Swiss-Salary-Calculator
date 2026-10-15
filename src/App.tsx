@@ -72,7 +72,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="max-w-xl">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Swiss Salary &amp; Budget Calculator
+              LohnLab.ch Salary &amp; Budget Calculator
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
               Accurate calculation of AHV/IV/EO, ALV, BVG pension, family allowances, and taxes across all 26 cantons.
@@ -128,20 +128,9 @@ export default function App() {
                 }`}
               >
                 <Building2 className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                <span>Compare 26 Cantons</span>
+                <span>Compare Cantons</span>
               </button>
-              <button
-                type="button"
-                onClick={() => setActiveSection('employer')}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-colors cursor-pointer justify-center ${
-                  activeSection === 'employer'
-                    ? 'bg-white text-slate-900 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <Briefcase className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                <span>Employer Cost</span>
-              </button>
+
               <button
                 type="button"
                 onClick={() => setActiveSection('guide')}
@@ -204,7 +193,7 @@ export default function App() {
         {/* Section: Budget Calculator */}
         {activeSection === 'budget' && (
           <div className="max-w-4xl mx-auto space-y-6">
-            <BudgetCalculator result={result} />
+            <BudgetCalculator result={result} setActiveSection={setActiveSection} />
           </div>
         )}
 
@@ -222,12 +211,7 @@ export default function App() {
           </div>
         )}
 
-        {/* Section: Employer Cost */}
-        {activeSection === 'employer' && (
-          <div className="max-w-4xl mx-auto space-y-6">
-            <EmployerCostCard result={result} />
-          </div>
-        )}
+
 
         {/* Section: Swiss Guide */}
         {activeSection === 'guide' && (

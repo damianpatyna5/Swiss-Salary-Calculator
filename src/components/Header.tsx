@@ -28,7 +28,7 @@ export const Header: React.FC<HeaderProps> = ({
             href="/"
             className="text-lg font-bold tracking-tight text-slate-900 whitespace-nowrap hover:text-red-700 transition-colors"
           >
-            SwissSalary<span className="text-red-600 font-extrabold">.ch</span>
+            LohnLab<span className="text-red-600 font-extrabold">.ch</span>
           </a>
         </div>
 
@@ -58,6 +58,17 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
           <button
             type="button"
+            onClick={() => setActiveSection('budget')}
+            className={`cursor-pointer whitespace-nowrap transition-colors hover:text-slate-900 ${
+              activeSection === 'budget'
+                ? 'text-emerald-600 font-semibold border-b-2 border-emerald-600 pb-0.5'
+                : ''
+            }`}
+          >
+            Budget Calculator
+          </button>
+          <button
+            type="button"
             onClick={() => setActiveSection('cantons')}
             className={`cursor-pointer whitespace-nowrap transition-colors hover:text-slate-900 ${
               activeSection === 'cantons'
@@ -65,19 +76,9 @@ export const Header: React.FC<HeaderProps> = ({
                 : ''
             }`}
           >
-            All 26 Cantons
+            Compare Cantons
           </button>
-          <button
-            type="button"
-            onClick={() => setActiveSection('employer')}
-            className={`cursor-pointer whitespace-nowrap transition-colors hover:text-slate-900 ${
-              activeSection === 'employer'
-                ? 'text-red-600 font-semibold border-b-2 border-red-600 pb-0.5'
-                : ''
-            }`}
-          >
-            Employer Cost
-          </button>
+
           <button
             type="button"
             onClick={() => setActiveSection('guide')}
