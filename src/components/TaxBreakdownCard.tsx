@@ -128,6 +128,50 @@ export const TaxBreakdownCard: React.FC<TaxBreakdownCardProps> = ({ result }) =>
         </div>
       </div>
 
+      {/* Dual Income Split Summary Cards */}
+      {result.isDualIncome && result.spouseResult && (
+        <div className="bg-slate-50 border border-slate-200/80 rounded-lg p-3.5 space-y-2.5">
+          <div className="text-xs font-bold text-slate-900 flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-red-600" />
+              Dual-Income Net Pay Split (Separate Calculations)
+            </span>
+            <span className="text-[10px] text-slate-500 font-normal">
+              Joint Swiss Married Tariff
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+            <div className="bg-white p-2.5 rounded-md border border-slate-200">
+              <span className="text-slate-500 text-[11px] block">You (Primary Earner)</span>
+              <strong className="text-slate-900 font-mono text-sm block mt-0.5">
+                {formatCHF(result.primaryResult.netPayMonthly)} /mo
+              </strong>
+              <span className="text-slate-400 text-[10px]">
+                {formatCHF(result.primaryResult.netPayAnnual)} /yr · Retain {formatPercent(result.primaryResult.totalRetentionRate, 1)}
+              </span>
+            </div>
+            <div className="bg-white p-2.5 rounded-md border border-slate-200">
+              <span className="text-slate-500 text-[11px] block">Spouse (Partner)</span>
+              <strong className="text-slate-900 font-mono text-sm block mt-0.5">
+                {formatCHF(result.spouseResult.netPayMonthly)} /mo
+              </strong>
+              <span className="text-slate-400 text-[10px]">
+                {formatCHF(result.spouseResult.netPayAnnual)} /yr · Retain {formatPercent(result.spouseResult.totalRetentionRate, 1)}
+              </span>
+            </div>
+            <div className="bg-red-50/60 p-2.5 rounded-md border border-red-200">
+              <span className="text-red-700 text-[11px] font-semibold block">Combined Household</span>
+              <strong className="text-red-950 font-mono text-sm block mt-0.5">
+                {formatCHF(result.netPayMonthly)} /mo
+              </strong>
+              <span className="text-red-700 text-[10px] font-medium">
+                {formatCHF(result.netPayAnnual)} /yr · Total Net Pay
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Deep-dive Tax Breakdown details */}
       <div className="border border-slate-200/80 rounded-lg p-4 space-y-3">
         <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
@@ -169,7 +213,7 @@ export const TaxBreakdownCard: React.FC<TaxBreakdownCardProps> = ({ result }) =>
               <div>
                 <span className="font-semibold text-slate-800">Kirchensteuer (Church Tax)</span>
                 <div className="text-[10px] text-slate-500">
-                  {result.inputs.churchAffiliation.replace('_', ' ')}
+                  Canton {result.canton.name} church tax ({result.canton.churchTaxRate}%)
                 </div>
               </div>
               <span className="font-mono font-bold text-slate-900">

@@ -29,16 +29,22 @@ export interface CalculatorInputs {
   numberOfMonths: 12 | 13;
   cantonCode: string;
   maritalStatus: MaritalStatus;
-  spouseGrossSalary?: number; // If dual income
+  // Spouse details for Married (Dual Income)
+  spouseGrossSalary: number; // CHF
+  spouseSalaryPeriod: 'monthly' | 'annual';
+  spouseNumberOfMonths: 12 | 13;
+  spouseAge: number;
+  spousePillar3aContribution: number;
+  // Children & Family
   childrenUnder16: number;
   childrenEducation: number; // 16-25 in education
   age: number; // Used for BVG
-  churchAffiliation: ChurchAffiliation;
+  isChurchMember: boolean; // Yes / No
   taxationType: TaxationType;
   pillar3aContribution: number; // Max CHF 7,056 for employees
   includeHealthInsurance: boolean;
-  nbuRate: number; // Default 1.2%
-  ktgRate: number; // Default 0.8%
+  nbuRate?: number; // Statutory default 1.2%
+  ktgRate?: number; // Statutory default 0.8%
 }
 
 export interface SocialSecurityDeductions {
@@ -103,9 +109,34 @@ export interface EmployerContributions {
   totalEmployerCostMonthly: number;
 }
 
+export interface IndividualSalaryResult {
+  label: string;
+  grossSalaryAnnual: number;
+  grossSalaryMonthly: number;
+  salaryPeriod: 'monthly' | 'annual';
+  numberOfMonths: 12 | 13;
+  age: number;
+  socialSecurity: SocialSecurityDeductions;
+  netBeforeTaxAnnual: number;
+  netBeforeTaxMonthly: number;
+  taxShareAnnual: number;
+  taxShareMonthly: number;
+  effectiveTaxRate: number;
+  netPayAnnual: number;
+  netPayMonthly: number;
+  totalRetentionRate: number;
+  pillar3a: number;
+}
+
 export interface CalculationResult {
   inputs: CalculatorInputs;
   canton: CantonInfo;
+  isDualIncome: boolean;
+  // Primary Earner individual result
+  primaryResult: IndividualSalaryResult;
+  // Spouse individual result (if dual income)
+  spouseResult?: IndividualSalaryResult;
+  // Combined or Selected Summary
   grossSalaryAnnual: number;
   grossSalaryMonthly: number;
   socialSecurity: SocialSecurityDeductions;
@@ -115,10 +146,11 @@ export interface CalculationResult {
   tax: TaxDeductions;
   netPayAnnual: number; // Disbursed salary (Nettolohn nach Steuern)
   netPayMonthly: number;
-  disposableIncomeAnnual: number; // Net pay minus KVG Health insurance
+  disposableIncomeAnnual: number;
   disposableIncomeMonthly: number;
   healthInsuranceAnnual: number;
   healthInsuranceMonthly: number;
   employerCost: EmployerContributions;
   totalRetentionRate: number; // Net / Gross %
 }
+

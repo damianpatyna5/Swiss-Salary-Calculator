@@ -150,85 +150,57 @@ function calculateCantonalAndMunicipalTax(
 }
 
 /**
- * Main Calculation Function
+ * Helper to compute individual social security deductions for one person
  */
-export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResult {
-  const {
-    grossSalary,
-    salaryPeriod,
-    numberOfMonths,
-    cantonCode,
-    maritalStatus,
-    childrenUnder16,
-    childrenEducation,
-    age,
-    churchAffiliation,
-    pillar3aContribution = 0,
-    includeHealthInsurance = true,
-    nbuRate = 1.2,
-    ktgRate = 0.8,
-  } = inputs;
-
-  const canton = CANTONS_DATA[cantonCode] || CANTONS_DATA.ZH;
-  const isMarried = maritalStatus.startsWith('married');
-  const isDualIncome = maritalStatus === 'married_dual_income';
-  const totalChildren = childrenUnder16 + childrenEducation;
-
-  // 1. Gross Salary (Annual & Monthly)
-  let grossSalaryAnnual: number;
-  let grossSalaryMonthly: number;
-
-  if (salaryPeriod === 'monthly') {
-    grossSalaryMonthly = grossSalary;
-    grossSalaryAnnual = grossSalary * numberOfMonths;
-  } else {
-    grossSalaryAnnual = grossSalary;
-    grossSalaryMonthly = grossSalary / numberOfMonths;
-  }
-
-  // 2. Social Security Deductions (1st & 2nd Pillar)
+export function calculatePersonSocialSecurity(
+  grossAnnual: number,
+  months: number,
+  age: number,
+  nbuRate: number = 1.2,
+  ktgRate: number = 0.8
+): SocialSecurityDeductions {
   // AHV / IV / EO: 5.30% uncapped
   const ahvRate = 5.3;
-  const ahvAnnual = grossSalaryAnnual * (ahvRate / 100);
-  const ahvMonthly = ahvAnnual / numberOfMonths;
+  const ahvAnnual = grossAnnual * (ahvRate / 100);
+  const ahvMonthly = ahvAnnual / months;
 
   // ALV: 1.10% capped at CHF 148,200
   const alvRate = 1.1;
-  const alvInsuredSalary = Math.min(grossSalaryAnnual, UVG_ALV_CEILING);
+  const alvInsuredSalary = Math.min(grossAnnual, UVG_ALV_CEILING);
   const alvAnnual = alvInsuredSalary * (alvRate / 100);
-  const alvMonthly = alvAnnual / numberOfMonths;
+  const alvMonthly = alvAnnual / months;
 
   // NBU: Non-occupational accident (capped at 148,200)
-  const nbuInsuredSalary = Math.min(grossSalaryAnnual, UVG_ALV_CEILING);
+  const nbuInsuredSalary = Math.min(grossAnnual, UVG_ALV_CEILING);
   const nbuAnnual = nbuInsuredSalary * (nbuRate / 100);
-  const nbuMonthly = nbuAnnual / numberOfMonths;
+  const nbuMonthly = nbuAnnual / months;
 
   // KTG: Daily sickness allowance
-  const ktgAnnual = grossSalaryAnnual * (ktgRate / 100);
-  const ktgMonthly = ktgAnnual / numberOfMonths;
+  const ktgAnnual = grossAnnual * (ktgRate / 100);
+  const ktgMonthly = ktgAnnual / months;
 
   // BVG / LPP: Occupational Pension (2nd Pillar)
   let bvgCoordinatedSalary = 0;
   let bvgAnnual = 0;
   const bvgRate = getBvgEmployeeRate(age);
 
-  if (grossSalaryAnnual >= BVG_ENTRY_THRESHOLD) {
-    const rawCoordinated = grossSalaryAnnual - BVG_COORDINATION_DEDUCTION;
+  if (grossAnnual >= BVG_ENTRY_THRESHOLD) {
+    const rawCoordinated = grossAnnual - BVG_COORDINATION_DEDUCTION;
     bvgCoordinatedSalary = Math.min(
       Math.max(rawCoordinated, BVG_MIN_COORDINATED_SALARY),
       BVG_MAX_COORDINATED_SALARY
     );
     bvgAnnual = bvgCoordinatedSalary * (bvgRate / 100);
   }
-  const bvgMonthly = bvgAnnual / numberOfMonths;
+  const bvgMonthly = bvgAnnual / months;
 
   const totalDeductionsAnnual =
     ahvAnnual + alvAnnual + nbuAnnual + ktgAnnual + bvgAnnual;
-  const totalDeductionsMonthly = totalDeductionsAnnual / numberOfMonths;
+  const totalDeductionsMonthly = totalDeductionsAnnual / months;
   const effectiveSocialRate =
-    grossSalaryAnnual > 0 ? (totalDeductionsAnnual / grossSalaryAnnual) * 100 : 0;
+    grossAnnual > 0 ? (totalDeductionsAnnual / grossAnnual) * 100 : 0;
 
-  const socialSecurity: SocialSecurityDeductions = {
+  return {
     ahvRate,
     ahvAnnual,
     ahvMonthly,
@@ -249,12 +221,86 @@ export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResul
     totalDeductionsMonthly,
     effectiveSocialRate,
   };
+}
+
+/**
+ * Main Calculation Function with Dual-Income Separate Calculation
+ */
+export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResult {
+  const {
+    grossSalary,
+    salaryPeriod,
+    numberOfMonths,
+    cantonCode,
+    maritalStatus,
+    spouseGrossSalary = 0,
+    spouseSalaryPeriod = 'annual',
+    spouseNumberOfMonths = 12,
+    spouseAge = 32,
+    spousePillar3aContribution = 0,
+    childrenUnder16,
+    childrenEducation,
+    age,
+    isChurchMember = false,
+    pillar3aContribution = 0,
+    includeHealthInsurance = false,
+    nbuRate = 1.2,
+    ktgRate = 0.8,
+  } = inputs;
+
+  const canton = CANTONS_DATA[cantonCode] || CANTONS_DATA.ZH;
+  const isMarried = maritalStatus.startsWith('married');
+  const isDualIncome = maritalStatus === 'married_dual_income';
+  const totalChildren = childrenUnder16 + childrenEducation;
+
+  // 1. Primary Earner Salary
+  const primaryGrossAnnual =
+    salaryPeriod === 'monthly' ? grossSalary * numberOfMonths : grossSalary;
+  const primaryGrossMonthly = primaryGrossAnnual / numberOfMonths;
+
+  const primarySocial = calculatePersonSocialSecurity(
+    primaryGrossAnnual,
+    numberOfMonths,
+    age,
+    nbuRate,
+    ktgRate
+  );
+
+  const primaryNetBeforeTaxAnnual =
+    primaryGrossAnnual - primarySocial.totalDeductionsAnnual;
+  const primaryNetBeforeTaxMonthly = primaryNetBeforeTaxAnnual / numberOfMonths;
+
+  // 2. Spouse Salary (if Married Dual Income)
+  let spouseGrossAnnual = 0;
+  let spouseGrossMonthly = 0;
+  let spouseSocial = calculatePersonSocialSecurity(0, spouseNumberOfMonths, spouseAge, nbuRate, ktgRate);
+  let spouseNetBeforeTaxAnnual = 0;
+  let spouseNetBeforeTaxMonthly = 0;
+
+  if (isDualIncome && spouseGrossSalary > 0) {
+    spouseGrossAnnual =
+      spouseSalaryPeriod === 'monthly'
+        ? spouseGrossSalary * spouseNumberOfMonths
+        : spouseGrossSalary;
+    spouseGrossMonthly = spouseGrossAnnual / spouseNumberOfMonths;
+    spouseSocial = calculatePersonSocialSecurity(
+      spouseGrossAnnual,
+      spouseNumberOfMonths,
+      spouseAge,
+      nbuRate,
+      ktgRate
+    );
+    spouseNetBeforeTaxAnnual =
+      spouseGrossAnnual - spouseSocial.totalDeductionsAnnual;
+    spouseNetBeforeTaxMonthly = spouseNetBeforeTaxAnnual / spouseNumberOfMonths;
+  }
 
   // 3. Child & Family Allowances
   const childAllowanceMonthly = childrenUnder16 * canton.childAllowanceMonthly;
   const childAllowanceAnnual = childAllowanceMonthly * 12;
 
-  const educationAllowanceMonthly = childrenEducation * canton.educationAllowanceMonthly;
+  const educationAllowanceMonthly =
+    childrenEducation * canton.educationAllowanceMonthly;
   const educationAllowanceAnnual = educationAllowanceMonthly * 12;
 
   const totalAllowanceAnnual = childAllowanceAnnual + educationAllowanceAnnual;
@@ -269,27 +315,38 @@ export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResul
     totalAllowanceMonthly,
   };
 
-  // 4. Net Salary Before Tax
-  const netBeforeTaxAnnual = grossSalaryAnnual - totalDeductionsAnnual;
-  const netBeforeTaxMonthly = netBeforeTaxAnnual / numberOfMonths;
+  // 4. Combined Household Taxable Income Calculation
+  const householdGrossAnnual = primaryGrossAnnual + spouseGrossAnnual;
+  const totalSocialAnnual =
+    primarySocial.totalDeductionsAnnual + spouseSocial.totalDeductionsAnnual;
+  const totalSocialMonthly =
+    primarySocial.totalDeductionsMonthly + spouseSocial.totalDeductionsMonthly;
 
-  // 5. Tax Deductions
-  // Taxable income estimation:
-  // Gross + Child Allowances - Social Security - Pillar 3a - Child deductions - Standard deductions
-  const pillar3aCapped = Math.min(Math.max(0, pillar3aContribution), 7056);
+  const primaryPillar3aCapped = Math.min(Math.max(0, pillar3aContribution), 7056);
+  const spousePillar3aCapped = isDualIncome
+    ? Math.min(Math.max(0, spousePillar3aContribution), 7056)
+    : 0;
+  const totalPillar3a = primaryPillar3aCapped + spousePillar3aCapped;
+
   const insuranceDeduction = isMarried
     ? FEDERAL_INSURANCE_DEDUCTION_MARRIED
     : FEDERAL_INSURANCE_DEDUCTION_SINGLE;
   const childDeductionsTotal = totalChildren * FEDERAL_CHILD_DEDUCTION;
-  const dualIncomeDeduction = isDualIncome ? 8000 : 0;
+
+  // Swiss dual-earner deduction (Zweitverdienerabzug): 50% of the lower income, min 3,400, max 13,600
+  let dualIncomeDeduction = 0;
+  if (isDualIncome && spouseGrossAnnual > 0 && primaryGrossAnnual > 0) {
+    const lowerIncome = Math.min(primaryGrossAnnual, spouseGrossAnnual);
+    dualIncomeDeduction = Math.min(Math.max(lowerIncome * 0.5, 3400), 13600);
+  }
 
   const estimatedTaxableIncome = Math.max(
     0,
-    grossSalaryAnnual +
+    householdGrossAnnual +
       totalAllowanceAnnual -
-      totalDeductionsAnnual -
-      pillar3aCapped -
-      FEDERAL_PROFESSIONAL_DEDUCTION -
+      totalSocialAnnual -
+      totalPillar3a -
+      (isDualIncome ? FEDERAL_PROFESSIONAL_DEDUCTION * 2 : FEDERAL_PROFESSIONAL_DEDUCTION) -
       insuranceDeduction -
       childDeductionsTotal -
       dualIncomeDeduction
@@ -316,7 +373,7 @@ export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResul
   let churchTaxAnnual = 0;
   if (
     canton.hasChurchTax &&
-    churchAffiliation !== 'none' &&
+    isChurchMember &&
     cantonalTaxAnnual > 0
   ) {
     churchTaxAnnual = cantonalTaxAnnual * (canton.churchTaxRate / 100);
@@ -328,7 +385,7 @@ export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResul
   const totalTaxMonthly = totalTaxAnnual / 12;
 
   const effectiveTaxRate =
-    grossSalaryAnnual > 0 ? (totalTaxAnnual / grossSalaryAnnual) * 100 : 0;
+    householdGrossAnnual > 0 ? (totalTaxAnnual / householdGrossAnnual) * 100 : 0;
 
   const tax: TaxDeductions = {
     federalTaxAnnual,
@@ -345,16 +402,95 @@ export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResul
     taxableIncomeEstimated: estimatedTaxableIncome,
   };
 
-  // 6. Net Take-Home Pay (After Tax + Including Child Allowance)
-  // In Switzerland, child allowance is paid into the paycheck!
-  const netPayAnnual =
-    grossSalaryAnnual - totalDeductionsAnnual + totalAllowanceAnnual - totalTaxAnnual;
-  const netPayMonthly = netPayAnnual / numberOfMonths;
+  // 5. Apportion Tax Between Primary and Spouse
+  let primaryTaxShareAnnual = totalTaxAnnual;
+  let spouseTaxShareAnnual = 0;
+
+  if (isDualIncome && householdGrossAnnual > 0) {
+    const primaryShareRatio = primaryGrossAnnual / householdGrossAnnual;
+    primaryTaxShareAnnual = totalTaxAnnual * primaryShareRatio;
+    spouseTaxShareAnnual = totalTaxAnnual * (1 - primaryShareRatio);
+  }
+
+  const primaryNetPayAnnual =
+    primaryGrossAnnual -
+    primarySocial.totalDeductionsAnnual +
+    totalAllowanceAnnual -
+    primaryTaxShareAnnual;
+  const primaryNetPayMonthly = primaryNetPayAnnual / numberOfMonths;
+
+  const primaryResult = {
+    label: 'You (Primary Earner)',
+    grossSalaryAnnual: primaryGrossAnnual,
+    grossSalaryMonthly: primaryGrossMonthly,
+    salaryPeriod,
+    numberOfMonths,
+    age,
+    socialSecurity: primarySocial,
+    netBeforeTaxAnnual: primaryNetBeforeTaxAnnual,
+    netBeforeTaxMonthly: primaryNetBeforeTaxMonthly,
+    taxShareAnnual: primaryTaxShareAnnual,
+    taxShareMonthly: primaryTaxShareAnnual / numberOfMonths,
+    effectiveTaxRate:
+      primaryGrossAnnual > 0
+        ? (primaryTaxShareAnnual / primaryGrossAnnual) * 100
+        : 0,
+    netPayAnnual: primaryNetPayAnnual,
+    netPayMonthly: primaryNetPayMonthly,
+    totalRetentionRate:
+      primaryGrossAnnual > 0 ? (primaryNetPayAnnual / primaryGrossAnnual) * 100 : 0,
+    pillar3a: primaryPillar3aCapped,
+  };
+
+  let spouseResult: typeof primaryResult | undefined = undefined;
+
+  if (isDualIncome) {
+    const spouseNetPayAnnual =
+      spouseGrossAnnual -
+      spouseSocial.totalDeductionsAnnual -
+      spouseTaxShareAnnual;
+    const spouseNetPayMonthly = spouseNetPayAnnual / spouseNumberOfMonths;
+
+    spouseResult = {
+      label: 'Spouse',
+      grossSalaryAnnual: spouseGrossAnnual,
+      grossSalaryMonthly: spouseGrossMonthly,
+      salaryPeriod: spouseSalaryPeriod,
+      numberOfMonths: spouseNumberOfMonths,
+      age: spouseAge,
+      socialSecurity: spouseSocial,
+      netBeforeTaxAnnual: spouseNetBeforeTaxAnnual,
+      netBeforeTaxMonthly: spouseNetBeforeTaxMonthly,
+      taxShareAnnual: spouseTaxShareAnnual,
+      taxShareMonthly: spouseTaxShareAnnual / spouseNumberOfMonths,
+      effectiveTaxRate:
+        spouseGrossAnnual > 0
+          ? (spouseTaxShareAnnual / spouseGrossAnnual) * 100
+          : 0,
+      netPayAnnual: spouseNetPayAnnual,
+      netPayMonthly: spouseNetPayMonthly,
+      totalRetentionRate:
+        spouseGrossAnnual > 0
+          ? (spouseNetPayAnnual / spouseGrossAnnual) * 100
+          : 0,
+      pillar3a: spousePillar3aCapped,
+    };
+  }
+
+  // 6. Overall Combined Net Take-Home Pay
+  const netPayAnnual = isDualIncome
+    ? primaryNetPayAnnual + (spouseResult?.netPayAnnual || 0)
+    : primaryNetPayAnnual;
+  const netPayMonthly = isDualIncome
+    ? primaryNetPayMonthly + (spouseResult?.netPayMonthly || 0)
+    : primaryNetPayMonthly;
+
+  const netBeforeTaxAnnual = primaryNetBeforeTaxAnnual + spouseNetBeforeTaxAnnual;
+  const netBeforeTaxMonthly = primaryNetBeforeTaxMonthly + spouseNetBeforeTaxMonthly;
 
   // 7. Health Insurance Benchmark
-  // Basic KVG health insurance is mandatory in Switzerland but paid individually by each resident
   const adultHealthMonthly = canton.avgHealthInsuranceMonthly * (isMarried ? 2 : 1);
-  const childHealthMonthly = totalChildren * 110; // avg child premium ~110 CHF
+  const childHealthMonthly = totalChildren * 110;
   const healthInsuranceMonthly = includeHealthInsurance
     ? adultHealthMonthly + childHealthMonthly
     : 0;
@@ -363,17 +499,15 @@ export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResul
   const disposableIncomeAnnual = netPayAnnual - healthInsuranceAnnual;
   const disposableIncomeMonthly = disposableIncomeAnnual / numberOfMonths;
 
-  // 8. Employer Social Costs (for transparency & B2B/full cost)
-  // Employer pays matching AHV/IV/EO (5.3%), ALV (1.1%), BVG (same or higher, ~bvgAnnual),
-  // Family fund FAK (~1.5% - 2.5%), Occupational accident BU (~0.15% - 0.3%)
-  const ahvEmployerAnnual = ahvAnnual;
-  const alvEmployerAnnual = alvAnnual;
-  const bvgEmployerAnnual = bvgAnnual;
-  const fakEmployerAnnual = grossSalaryAnnual * 0.018; // ~1.8% average FAK
-  const buEmployerAnnual = Math.min(grossSalaryAnnual, UVG_ALV_CEILING) * 0.002; // ~0.2% BU
+  // 8. Employer Social Costs (for primary employer)
+  const ahvEmployerAnnual = primarySocial.ahvAnnual;
+  const alvEmployerAnnual = primarySocial.alvAnnual;
+  const bvgEmployerAnnual = primarySocial.bvgAnnual;
+  const fakEmployerAnnual = primaryGrossAnnual * 0.018;
+  const buEmployerAnnual = Math.min(primaryGrossAnnual, UVG_ALV_CEILING) * 0.002;
 
   const totalEmployerCostAnnual =
-    grossSalaryAnnual +
+    primaryGrossAnnual +
     ahvEmployerAnnual +
     alvEmployerAnnual +
     bvgEmployerAnnual +
@@ -392,14 +526,24 @@ export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResul
   };
 
   const totalRetentionRate =
-    grossSalaryAnnual > 0 ? (netPayAnnual / grossSalaryAnnual) * 100 : 0;
+    householdGrossAnnual > 0 ? (netPayAnnual / householdGrossAnnual) * 100 : 0;
 
   return {
     inputs,
     canton,
-    grossSalaryAnnual,
-    grossSalaryMonthly,
-    socialSecurity,
+    isDualIncome,
+    primaryResult,
+    spouseResult,
+    grossSalaryAnnual: isDualIncome ? householdGrossAnnual : primaryGrossAnnual,
+    grossSalaryMonthly: isDualIncome ? primaryGrossMonthly + spouseGrossMonthly : primaryGrossMonthly,
+    socialSecurity: isDualIncome
+      ? {
+          ...primarySocial,
+          totalDeductionsAnnual: totalSocialAnnual,
+          totalDeductionsMonthly: totalSocialMonthly,
+          effectiveSocialRate: householdGrossAnnual > 0 ? (totalSocialAnnual / householdGrossAnnual) * 100 : 0,
+        }
+      : primarySocial,
     familyAllowances,
     netBeforeTaxAnnual,
     netBeforeTaxMonthly,

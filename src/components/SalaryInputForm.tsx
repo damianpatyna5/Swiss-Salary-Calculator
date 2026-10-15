@@ -1,22 +1,14 @@
-import React, { useState } from 'react';
-import {
-  CalculatorInputs,
-  MaritalStatus,
-  ChurchAffiliation,
-} from '../types/calculator';
+import React from 'react';
+import { CalculatorInputs, MaritalStatus } from '../types/calculator';
 import { CANTON_LIST, CANTONS_DATA } from '../data/cantons';
 import { formatCHF, getBvgEmployeeRate } from '../utils/calculator';
 import {
   ChevronDown,
-  Info,
-  Sliders,
   Users,
   Baby,
   Church,
-  ShieldAlert,
   Wallet,
-  Sparkles,
-  HeartHandshake,
+  PiggyBank,
 } from 'lucide-react';
 
 interface SalaryInputFormProps {
@@ -25,7 +17,6 @@ interface SalaryInputFormProps {
 }
 
 export const SalaryInputForm: React.FC<SalaryInputFormProps> = ({ inputs, onChange }) => {
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const selectedCanton = CANTONS_DATA[inputs.cantonCode] || CANTONS_DATA.ZH;
   const bvgRate = getBvgEmployeeRate(inputs.age);
 
@@ -39,16 +30,9 @@ export const SalaryInputForm: React.FC<SalaryInputFormProps> = ({ inputs, onChan
     });
   };
 
-  // Quick salary presets (Swiss annual benchmarks)
-  const salaryPresets = [
-    { label: "CHF 65'000", value: 65000, desc: 'Entry' },
-    { label: "CHF 85'000", value: 85000, desc: 'Median' },
-    { label: "CHF 120'000", value: 120000, desc: 'Professional' },
-    { label: "CHF 160'000", value: 160000, desc: 'Senior' },
-  ];
-
   return (
     <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6 space-y-6">
+      {/* Card Header */}
       <div className="border-b border-slate-100 pb-4 flex items-center justify-between">
         <div>
           <h2 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
@@ -56,16 +40,18 @@ export const SalaryInputForm: React.FC<SalaryInputFormProps> = ({ inputs, onChan
             Salary & Personal Profile
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Configure your Swiss gross salary, canton, family status, and deductions.
+            Configure your Swiss gross salary, canton, family allowances, and pension.
           </p>
         </div>
       </div>
 
-      {/* Salary Amount & Cadence */}
+      {/* 1. Gross Salary Amount & Cadence */}
       <div className="space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <label className="text-xs font-semibold text-slate-700 tracking-wide">
-            Gross Salary (Bruttolohn)
+            {inputs.maritalStatus === 'married_dual_income'
+              ? 'Your Gross Salary (Person 1)'
+              : 'Gross Salary (Bruttolohn)'}
           </label>
           <div className="flex items-center gap-1.5 self-start sm:self-auto">
             {/* Period switch */}
@@ -132,35 +118,16 @@ export const SalaryInputForm: React.FC<SalaryInputFormProps> = ({ inputs, onChan
             min={0}
             step={inputs.salaryPeriod === 'annual' ? 1000 : 100}
             value={inputs.grossSalary || ''}
-            onChange={(e) => updateField('grossSalary', Math.max(0, parseFloat(e.target.value) || 0))}
+            onChange={(e) =>
+              updateField('grossSalary', Math.max(0, parseFloat(e.target.value) || 0))
+            }
             className="w-full pl-13 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-lg font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 tabular-nums font-mono transition-colors"
             placeholder={inputs.salaryPeriod === 'annual' ? '85000' : '7083'}
           />
         </div>
-
-        {/* Quick presets */}
-        <div className="flex flex-wrap items-center gap-1.5 pt-1">
-          <span className="text-[11px] text-slate-400 font-medium mr-1">Presets:</span>
-          {salaryPresets.map((preset) => (
-            <button
-              key={preset.value}
-              type="button"
-              onClick={() => {
-                const targetVal =
-                  inputs.salaryPeriod === 'annual'
-                    ? preset.value
-                    : Math.round(preset.value / inputs.numberOfMonths);
-                updateField('grossSalary', targetVal);
-              }}
-              className="px-2.5 py-1 text-xs text-slate-600 bg-slate-100 hover:bg-slate-200/80 rounded-md transition-colors tabular-nums cursor-pointer"
-            >
-              {preset.label} <span className="text-slate-400 text-[10px]">({preset.desc})</span>
-            </button>
-          ))}
-        </div>
       </div>
 
-      {/* Canton Selection */}
+      {/* 2. Canton Selection */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
           <label className="text-xs font-semibold text-slate-700">
@@ -188,55 +155,79 @@ export const SalaryInputForm: React.FC<SalaryInputFormProps> = ({ inputs, onChan
         </div>
       </div>
 
-      {/* Marital Status */}
+      {/* 3. Age & BVG Pension Tier */}
       <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-          <Users className="w-3.5 h-3.5 text-slate-500" />
-          Marital Status (Zivilstand)
-        </label>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-semibold text-slate-700">
+            Age (Determines 2nd Pillar / BVG Pension rate)
+          </label>
+          <span className="text-xs font-mono font-bold text-slate-900">
+            {inputs.age} years old ({bvgRate > 0 ? `${bvgRate}% employee share` : 'No retirement credits'})
+          </span>
+        </div>
+        <input
+          type="range"
+          min={18}
+          max={68}
+          value={inputs.age}
+          onChange={(e) => updateField('age', parseInt(e.target.value, 10))}
+          className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-600"
+        />
+        <div className="flex justify-between text-[10px] text-slate-400 font-mono pt-0.5">
+          <span>&lt;25 (Risk only)</span>
+          <span>25-34 (3.5%)</span>
+          <span>35-44 (5.0%)</span>
+          <span>45-54 (7.5%)</span>
+          <span>55-65 (9.0%)</span>
+          <span>65+</span>
+        </div>
+      </div>
+
+      {/* 4. Church Membership (Simple Yes / No selection) */}
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+            <Church className="w-3.5 h-3.5 text-slate-500" />
+            Church Member (Kirchensteuer)
+          </label>
+          {!selectedCanton.hasChurchTax && (
+            <span className="text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded font-medium">
+              Voluntary in {selectedCanton.name}
+            </span>
+          )}
+        </div>
+        <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
-            onClick={() => updateField('maritalStatus', 'single')}
-            className={`px-3 py-2.5 rounded-lg border text-xs font-medium text-left transition-all cursor-pointer ${
-              inputs.maritalStatus === 'single'
+            onClick={() => updateField('isChurchMember', false)}
+            className={`px-3 py-2.5 rounded-lg border text-xs font-medium text-center transition-all cursor-pointer ${
+              !inputs.isChurchMember
                 ? 'border-red-600 bg-red-50/40 text-red-950 font-semibold ring-1 ring-red-600'
                 : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
             }`}
           >
-            <div className="font-semibold text-slate-900">Single (Ledig)</div>
-            <div className="text-[10px] text-slate-500 mt-0.5">Individual tariff</div>
+            <div className="font-semibold text-slate-900">No</div>
+            <div className="text-[10px] text-slate-500 mt-0.5">Exempt from church tax</div>
           </button>
 
           <button
             type="button"
-            onClick={() => updateField('maritalStatus', 'married_single_income')}
-            className={`px-3 py-2.5 rounded-lg border text-xs font-medium text-left transition-all cursor-pointer ${
-              inputs.maritalStatus === 'married_single_income'
+            onClick={() => updateField('isChurchMember', true)}
+            className={`px-3 py-2.5 rounded-lg border text-xs font-medium text-center transition-all cursor-pointer ${
+              inputs.isChurchMember
                 ? 'border-red-600 bg-red-50/40 text-red-950 font-semibold ring-1 ring-red-600'
                 : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
             }`}
           >
-            <div className="font-semibold text-slate-900">Married (Single Earner)</div>
-            <div className="text-[10px] text-slate-500 mt-0.5">Joint married splitting</div>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => updateField('maritalStatus', 'married_dual_income')}
-            className={`px-3 py-2.5 rounded-lg border text-xs font-medium text-left transition-all cursor-pointer ${
-              inputs.maritalStatus === 'married_dual_income'
-                ? 'border-red-600 bg-red-50/40 text-red-950 font-semibold ring-1 ring-red-600'
-                : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
-            }`}
-          >
-            <div className="font-semibold text-slate-900">Married (Dual Income)</div>
-            <div className="text-[10px] text-slate-500 mt-0.5">Both spouses employed</div>
+            <div className="font-semibold text-slate-900">Yes</div>
+            <div className="text-[10px] text-slate-500 mt-0.5">
+              Canton {selectedCanton.code} church tax applies (~{selectedCanton.churchTaxRate}%)
+            </div>
           </button>
         </div>
       </div>
 
-      {/* Children & Child Allowances */}
+      {/* 5. Family & Child Allowances */}
       <div className="bg-slate-50/80 rounded-lg p-4 border border-slate-200/70 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
@@ -333,186 +324,264 @@ export const SalaryInputForm: React.FC<SalaryInputFormProps> = ({ inputs, onChan
         )}
       </div>
 
-      {/* Church Affiliation */}
-      <div className="space-y-1.5">
+      {/* 6. Pillar 3a (Säule 3a) Contribution */}
+      <div className="space-y-1.5 p-4 bg-slate-50/80 rounded-lg border border-slate-200/70">
         <div className="flex items-center justify-between">
-          <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-            <Church className="w-3.5 h-3.5 text-slate-500" />
-            Church Membership (Kirchensteuer)
+          <label className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+            <PiggyBank className="w-3.5 h-3.5 text-red-600" />
+            Pillar 3a (Säule 3a) Contribution
           </label>
-          {!selectedCanton.hasChurchTax && (
-            <span className="text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded font-medium">
-              Voluntary in {selectedCanton.name}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono font-bold text-slate-900">
+              {formatCHF(inputs.pillar3aContribution)} / yr
             </span>
-          )}
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {[
-            { id: 'none', label: 'No Church Tax', sub: 'Keine' },
-            { id: 'roman_catholic', label: 'Roman Catholic', sub: 'Röm.-Kath.' },
-            { id: 'reformed', label: 'Reformed / Evang.', sub: 'Evang.-Ref.' },
-            { id: 'christian_catholic', label: 'Christ-Catholic', sub: 'Christkath.' },
-          ].map((item) => (
             <button
-              key={item.id}
               type="button"
-              onClick={() => updateField('churchAffiliation', item.id as ChurchAffiliation)}
-              className={`p-2 rounded-lg border text-left transition-colors cursor-pointer ${
-                inputs.churchAffiliation === item.id
-                  ? 'border-red-600 bg-red-50/40 text-red-950 ring-1 ring-red-600'
-                  : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
-              }`}
+              onClick={() => updateField('pillar3aContribution', 7056)}
+              className="px-2 py-0.5 text-xs font-bold text-red-700 bg-red-100 hover:bg-red-200 rounded-md transition-colors cursor-pointer"
+              title="Set to annual legal maximum of CHF 7'056"
             >
-              <div className="text-xs font-semibold text-slate-900">{item.label}</div>
-              <div className="text-[10px] text-slate-500">{item.sub}</div>
+              Max
             </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Age & BVG Pension Tier */}
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between">
-          <label className="text-xs font-semibold text-slate-700">
-            Age (Determines 2nd Pillar / BVG Pension rate)
-          </label>
-          <span className="text-xs font-mono font-bold text-slate-900">
-            {inputs.age} years old ({bvgRate > 0 ? `${bvgRate}% employee share` : 'No retirement credits'})
-          </span>
+            {inputs.pillar3aContribution > 0 && (
+              <button
+                type="button"
+                onClick={() => updateField('pillar3aContribution', 0)}
+                className="px-1.5 py-0.5 text-xs text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded transition-colors cursor-pointer"
+              >
+                Clear
+              </button>
+            )}
+          </div>
         </div>
         <input
           type="range"
-          min={18}
-          max={68}
-          value={inputs.age}
-          onChange={(e) => updateField('age', parseInt(e.target.value, 10))}
+          min={0}
+          max={7056}
+          step={1}
+          value={inputs.pillar3aContribution}
+          onChange={(e) =>
+            updateField('pillar3aContribution', parseInt(e.target.value, 10))
+          }
           className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-600"
         />
-        <div className="flex justify-between text-[10px] text-slate-400 font-mono pt-0.5">
-          <span>&lt;25 (Risk only)</span>
-          <span>25-34 (3.5%)</span>
-          <span>35-44 (5.0%)</span>
-          <span>45-54 (7.5%)</span>
-          <span>55-65 (9.0%)</span>
-          <span>65+</span>
+        <div className="flex justify-between items-center text-[10px] text-slate-500 pt-0.5">
+          <span>Fully deducts from taxable income (Statutory max: CHF 7'056/yr)</span>
+          <span className="font-mono font-semibold">Max: CHF 7'056</span>
         </div>
       </div>
 
-      {/* Advanced Drawer Button */}
-      <div className="pt-2">
-        <button
-          type="button"
-          onClick={() => setShowAdvanced(!showAdvanced)}
-          className="flex items-center justify-between w-full text-xs font-semibold text-slate-600 hover:text-slate-900 py-2 px-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
-        >
-          <span className="flex items-center gap-1.5">
-            <Sliders className="w-3.5 h-3.5" />
-            Additional Swiss Details (Pillar 3a, Health Insurance, Accident Insurance)
-          </span>
-          <ChevronDown
-            className={`w-4 h-4 transition-transform duration-200 ${
-              showAdvanced ? 'rotate-180' : ''
+      {/* 7. Marital Status (Zivilstand) - MOVED TO THE BOTTOM */}
+      <div className="space-y-2 pt-2 border-t border-slate-100">
+        <label className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+          <Users className="w-3.5 h-3.5 text-red-600" />
+          Marital Status (Zivilstand)
+        </label>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <button
+            type="button"
+            onClick={() => updateField('maritalStatus', 'single')}
+            className={`px-3 py-2.5 rounded-lg border text-xs font-medium text-left transition-all cursor-pointer ${
+              inputs.maritalStatus === 'single'
+                ? 'border-red-600 bg-red-50/40 text-red-950 font-semibold ring-1 ring-red-600'
+                : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
             }`}
-          />
-        </button>
-      </div>
+          >
+            <div className="font-semibold text-slate-900">Single (Ledig)</div>
+            <div className="text-[10px] text-slate-500 mt-0.5">Individual tariff</div>
+          </button>
 
-      {/* Advanced Settings */}
-      {showAdvanced && (
-        <div className="pt-2 space-y-4 border-t border-slate-100">
-          {/* Pillar 3a (Säule 3a) voluntary tax deduction */}
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-slate-700">
-                Pillar 3a (Säule 3a) Contribution
-              </label>
-              <span className="text-xs font-mono font-bold text-slate-900">
-                {formatCHF(inputs.pillar3aContribution)} / year (Max CHF 7'056)
+          <button
+            type="button"
+            onClick={() => updateField('maritalStatus', 'married_single_income')}
+            className={`px-3 py-2.5 rounded-lg border text-xs font-medium text-left transition-all cursor-pointer ${
+              inputs.maritalStatus === 'married_single_income'
+                ? 'border-red-600 bg-red-50/40 text-red-950 font-semibold ring-1 ring-red-600'
+                : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+            }`}
+          >
+            <div className="font-semibold text-slate-900">Married (Single Earner)</div>
+            <div className="text-[10px] text-slate-500 mt-0.5">Joint married splitting</div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => updateField('maritalStatus', 'married_dual_income')}
+            className={`px-3 py-2.5 rounded-lg border text-xs font-medium text-left transition-all cursor-pointer ${
+              inputs.maritalStatus === 'married_dual_income'
+                ? 'border-red-600 bg-red-50/40 text-red-950 font-semibold ring-1 ring-red-600'
+                : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+            }`}
+          >
+            <div className="font-semibold text-slate-900">Married (Dual Income)</div>
+            <div className="text-[10px] text-slate-500 mt-0.5">Both spouses employed</div>
+          </button>
+        </div>
+
+        {/* Spouse Income Card (Expands when Married Dual Income is selected) */}
+        {inputs.maritalStatus === 'married_dual_income' && (
+          <div className="mt-3 p-4 bg-red-50/40 rounded-xl border border-red-200/80 space-y-4">
+            <div className="flex items-center justify-between border-b border-red-200/50 pb-2">
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4 text-red-600" />
+                <h3 className="text-xs font-bold text-slate-900">
+                  Spouse's Salary & Employment Details
+                </h3>
+              </div>
+              <span className="text-[10px] font-semibold text-red-700 bg-red-100/80 px-2 py-0.5 rounded">
+                Individual Deduction & Joint Tax
               </span>
             </div>
-            <input
-              type="range"
-              min={0}
-              max={7056}
-              step={50}
-              value={inputs.pillar3aContribution}
-              onChange={(e) =>
-                updateField('pillar3aContribution', parseInt(e.target.value, 10))
-              }
-              className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-600"
-            />
-            <p className="text-[11px] text-slate-500">
-              Fully deducts from taxable income, saving substantial cantonal and federal taxes!
-            </p>
-          </div>
 
-          {/* Health Insurance Benchmark Toggle */}
-          <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
-            <div>
-              <div className="text-xs font-semibold text-slate-900">
-                Include Mandatory Health Insurance (KVG)
+            {/* Spouse Gross Salary */}
+            <div className="space-y-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                <label className="text-xs font-semibold text-slate-700">
+                  Spouse Gross Salary (Bruttolohn Partner)
+                </label>
+                <div className="flex items-center gap-1.5 self-start sm:self-auto">
+                  <div className="flex p-0.5 bg-white rounded-md border border-slate-200 text-xs font-medium">
+                    <button
+                      type="button"
+                      onClick={() => updateField('spouseSalaryPeriod', 'annual')}
+                      className={`px-2 py-0.5 rounded transition-colors cursor-pointer ${
+                        inputs.spouseSalaryPeriod === 'annual'
+                          ? 'bg-red-600 text-white font-semibold'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      Annual
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateField('spouseSalaryPeriod', 'monthly')}
+                      className={`px-2 py-0.5 rounded transition-colors cursor-pointer ${
+                        inputs.spouseSalaryPeriod === 'monthly'
+                          ? 'bg-red-600 text-white font-semibold'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      Monthly
+                    </button>
+                  </div>
+
+                  <div className="flex p-0.5 bg-white rounded-md border border-slate-200 text-xs font-medium">
+                    <button
+                      type="button"
+                      onClick={() => updateField('spouseNumberOfMonths', 12)}
+                      className={`px-1.5 py-0.5 rounded transition-colors cursor-pointer ${
+                        inputs.spouseNumberOfMonths === 12
+                          ? 'bg-red-600 text-white font-semibold'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      12x
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateField('spouseNumberOfMonths', 13)}
+                      className={`px-1.5 py-0.5 rounded transition-colors cursor-pointer ${
+                        inputs.spouseNumberOfMonths === 13
+                          ? 'bg-red-600 text-white font-semibold'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      13x
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div className="text-[11px] text-slate-500">
-                In Switzerland, health insurance is paid out-of-pocket (not deducted by employer).
+
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 font-semibold text-xs">
+                  CHF
+                </div>
+                <input
+                  type="number"
+                  min={0}
+                  step={inputs.spouseSalaryPeriod === 'annual' ? 1000 : 100}
+                  value={inputs.spouseGrossSalary || ''}
+                  onChange={(e) =>
+                    updateField(
+                      'spouseGrossSalary',
+                      Math.max(0, parseFloat(e.target.value) || 0)
+                    )
+                  }
+                  className="w-full pl-11 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-500 font-mono tabular-nums transition-colors"
+                  placeholder={inputs.spouseSalaryPeriod === 'annual' ? '65000' : '5416'}
+                />
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() =>
-                updateField('includeHealthInsurance', !inputs.includeHealthInsurance)
-              }
-              className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
-                inputs.includeHealthInsurance ? 'bg-red-600' : 'bg-slate-300'
-              }`}
-            >
-              <div
-                className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                  inputs.includeHealthInsurance ? 'translate-x-5' : 'translate-x-0'
-                }`}
+
+            {/* Spouse Age (BVG) */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-slate-700">
+                  Spouse Age (for BVG 2nd Pillar Pension)
+                </label>
+                <span className="text-xs font-mono font-bold text-slate-900">
+                  {inputs.spouseAge} years old ({getBvgEmployeeRate(inputs.spouseAge)}% employee share)
+                </span>
+              </div>
+              <input
+                type="range"
+                min={18}
+                max={68}
+                value={inputs.spouseAge}
+                onChange={(e) =>
+                  updateField('spouseAge', parseInt(e.target.value, 10))
+                }
+                className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-600"
               />
-            </button>
-          </div>
-
-          {/* NBU & KTG insurance adjustments */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-            <div>
-              <label className="text-xs font-semibold text-slate-700 block mb-1">
-                Non-Occupational Accident (NBU) Rate
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  min="0.5"
-                  max="3.5"
-                  value={inputs.nbuRate}
-                  onChange={(e) => updateField('nbuRate', parseFloat(e.target.value) || 1.2)}
-                  className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono font-bold"
-                />
-                <span className="text-xs text-slate-500">% (Avg. 1.2% - 1.5%)</span>
-              </div>
             </div>
 
-            <div>
-              <label className="text-xs font-semibold text-slate-700 block mb-1">
-                Daily Sickness Allowance (KTG) Rate
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  max="2.5"
-                  value={inputs.ktgRate}
-                  onChange={(e) => updateField('ktgRate', parseFloat(e.target.value) || 0.8)}
-                  className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono font-bold"
-                />
-                <span className="text-xs text-slate-500">% (Employee share ~0.8%)</span>
+            {/* Spouse Pillar 3a */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-slate-700">
+                  Spouse Pillar 3a Contribution
+                </label>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-mono font-bold text-slate-900">
+                    {formatCHF(inputs.spousePillar3aContribution)} / yr
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => updateField('spousePillar3aContribution', 7056)}
+                    className="px-1.5 py-0.5 text-[10px] font-bold text-red-700 bg-red-100 hover:bg-red-200 rounded transition-colors cursor-pointer"
+                    title="Set to annual legal maximum of CHF 7'056"
+                  >
+                    Max
+                  </button>
+                  {inputs.spousePillar3aContribution > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => updateField('spousePillar3aContribution', 0)}
+                      className="px-1 py-0.5 text-[10px] text-slate-500 hover:text-slate-800 rounded transition-colors cursor-pointer"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
               </div>
+              <input
+                type="range"
+                min={0}
+                max={7056}
+                step={1}
+                value={inputs.spousePillar3aContribution}
+                onChange={(e) =>
+                  updateField(
+                    'spousePillar3aContribution',
+                    parseInt(e.target.value, 10)
+                  )
+                }
+                className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-600"
+              />
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
