@@ -160,7 +160,7 @@ export const SalaryInputForm: React.FC<SalaryInputFormProps> = ({ inputs, onChan
       <div className="space-y-3 p-4 bg-slate-50/70 rounded-xl border border-slate-200/70">
         <div className="flex items-center justify-between">
           <label className="text-xs font-bold text-slate-900">
-            Age (Determines 2nd Pillar / BVG Pension rate)
+            Age
           </label>
           <span className="text-xs font-mono font-bold text-slate-900">
             {inputs.age} years old ({bvgRate > 0 ? `${bvgRate}% employee share` : 'No retirement credits'})
@@ -590,7 +590,7 @@ export const SalaryInputForm: React.FC<SalaryInputFormProps> = ({ inputs, onChan
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-semibold text-slate-700">
-                  Spouse Age (for BVG 2nd Pillar Pension)
+                  Spouse Age
                 </label>
                 <span className="text-xs font-mono font-bold text-slate-900">
                   {inputs.spouseAge} years old ({getBvgEmployeeRate(inputs.spouseAge)}% employee share)
