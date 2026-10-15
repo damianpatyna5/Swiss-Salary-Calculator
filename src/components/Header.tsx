@@ -28,7 +28,7 @@ export const Header: React.FC<HeaderProps> = ({
             href="/"
             className="text-lg font-bold tracking-tight text-slate-900 whitespace-nowrap hover:text-red-700 transition-colors"
           >
-            LohnLab<span className="text-red-600 font-extrabold">.ch</span>
+            Salary &amp; Budget Calculator
           </a>
         </div>
 

@@ -112,18 +112,18 @@ export const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ result, setA
             <div className="bg-slate-900 text-white p-4 rounded-xl shadow-xs space-y-1">
               <div className="flex items-center justify-between">
                 <div className="text-[10px] font-medium text-slate-300 uppercase tracking-wider">Net Home Pay</div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!isOverridingNet) {
-                      setOverrideNetMonthly(netMonthly);
-                    }
-                    setIsOverridingNet(!isOverridingNet);
-                  }}
-                  className="text-[10px] font-semibold text-red-400 hover:text-red-300 cursor-pointer underline"
-                >
-                  {isOverridingNet ? 'Use Calc' : 'Set'}
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!isOverridingNet) {
+                        setOverrideNetMonthly(netMonthly);
+                      }
+                      setIsOverridingNet(!isOverridingNet);
+                    }}
+                    className="px-2 py-0.5 text-[10px] font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded border border-red-200 transition-colors cursor-pointer"
+                  >
+                    {isOverridingNet ? 'Use Calc' : 'Set Manually'}
+                  </button>
               </div>
               {isOverridingNet ? (
                 <div className="flex items-center gap-1 pt-0.5">
