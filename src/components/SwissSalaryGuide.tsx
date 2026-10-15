@@ -79,14 +79,16 @@ export const SwissSalaryGuide: React.FC = () => {
   ];
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-6 space-y-4">
-      <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 sm:p-7 space-y-5">
+      <div className="border-b border-slate-100 pb-4 flex items-center justify-between">
         <div>
-          <h2 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            <HelpCircle className="w-5 h-5 text-red-600" />
-            Swiss Salary & Tax Guide (Wissenswertes)
+          <h2 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+              <HelpCircle className="w-4 h-4" />
+            </div>
+            Swiss Salary &amp; Tax Guide (Wissenswertes)
           </h2>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-slate-500 mt-1">
             Key rules of Swiss payroll, social security, family allowances, and taxes
           </p>
         </div>

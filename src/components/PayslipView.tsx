@@ -119,16 +119,18 @@ export const PayslipView: React.FC<PayslipViewProps> = ({ result }) => {
     : activeProfile.numberOfMonths;
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200/90 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
       {/* Top Banner */}
-      <div className="bg-slate-900 text-white px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <FileText className="w-5 h-5 text-red-400" />
+      <div className="bg-slate-900 text-white px-6 py-4.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-slate-800 text-red-400 flex items-center justify-center shrink-0">
+            <FileText className="w-4 h-4" />
+          </div>
           <div>
             <h3 className="text-sm font-bold tracking-tight">
               Official Swiss Payslip Preview (Lohnabrechnung)
             </h3>
-            <p className="text-xs text-slate-300">
+            <p className="text-xs text-slate-300 mt-0.5">
               Canton {result.canton.name} ({result.canton.code}) · {currentMonths} Salary Model
             </p>
           </div>

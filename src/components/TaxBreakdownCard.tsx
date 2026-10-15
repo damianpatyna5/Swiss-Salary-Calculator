@@ -240,55 +240,55 @@ export const TaxBreakdownCard: React.FC<TaxBreakdownCardProps> = ({
           </div>
         )}
 
-        {/* Clean, Unified Take-Home Pay & KPI Card */}
-        <div className="bg-slate-50/80 rounded-xl border border-slate-200/80 p-5 space-y-4">
+        {/* Clean, Unified Take-Home Pay & KPI Card (Dark) */}
+        <div className="bg-slate-900 text-white rounded-xl border border-slate-800 p-5 space-y-4 shadow-md">
           <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
             <div>
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
                 Net Take-Home Pay (Auszahlungsbetrag)
               </span>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl sm:text-4xl font-extrabold font-mono tracking-tight text-slate-900 tabular-nums">
+                <span className="text-3xl sm:text-4xl font-extrabold font-mono tracking-tight text-white tabular-nums">
                   {formatCHF(netPayAmount)}
                 </span>
-                <span className="text-sm font-semibold text-slate-500">
+                <span className="text-sm font-semibold text-slate-400">
                   {isMonthly ? '/ month' : '/ year'}
                 </span>
               </div>
             </div>
             <div className="text-left sm:text-right">
-              <span className="text-xs text-slate-500 font-mono block">
+              <span className="text-xs text-slate-400 font-mono block">
                 {isMonthly
                   ? `${formatCHF(isCombined ? result.netPayAnnual : currentProfile?.netPayAnnual || 0)} / year`
                   : `${formatCHF(isCombined ? result.netPayMonthly : currentProfile?.netPayMonthly || 0)} / month`}
               </span>
-              <span className="text-[11px] text-emerald-700 font-medium">
+              <span className="text-[11px] text-emerald-400 font-medium">
                 {formatPercent(retentionRate, 1)} of gross salary
               </span>
             </div>
           </div>
 
           {/* 3 Balanced KPI Metrics */}
-          <div className="grid grid-cols-3 gap-3 pt-3.5 border-t border-slate-200/70">
-            <div className="bg-white rounded-lg p-3 border border-slate-200/60 shadow-2xs">
-              <span className="text-[11px] font-medium text-slate-500 block truncate">Retention Rate</span>
-              <span className="text-base sm:text-lg font-bold font-mono text-emerald-700 tabular-nums block mt-0.5">
+          <div className="grid grid-cols-3 gap-3 pt-3.5 border-t border-slate-800">
+            <div className="bg-slate-800/90 rounded-lg p-3 border border-slate-700/60 shadow-2xs">
+              <span className="text-[11px] font-medium text-slate-400 block truncate">Retention Rate</span>
+              <span className="text-base sm:text-lg font-bold font-mono text-emerald-400 tabular-nums block mt-0.5">
                 {formatPercent(retentionRate, 1)}
               </span>
               <span className="text-[10px] text-slate-400 block mt-0.5 truncate">Net take-home</span>
             </div>
 
-            <div className="bg-white rounded-lg p-3 border border-slate-200/60 shadow-2xs">
-              <span className="text-[11px] font-medium text-slate-500 block truncate">Effective Tax</span>
-              <span className="text-base sm:text-lg font-bold font-mono text-red-600 tabular-nums block mt-0.5">
+            <div className="bg-slate-800/90 rounded-lg p-3 border border-slate-700/60 shadow-2xs">
+              <span className="text-[11px] font-medium text-slate-400 block truncate">Effective Tax</span>
+              <span className="text-base sm:text-lg font-bold font-mono text-red-400 tabular-nums block mt-0.5">
                 {formatPercent(effectiveTaxRate, 1)}
               </span>
               <span className="text-[10px] text-slate-400 block mt-0.5 truncate">All tax levels</span>
             </div>
 
-            <div className="bg-white rounded-lg p-3 border border-slate-200/60 shadow-2xs">
-              <span className="text-[11px] font-medium text-slate-500 block truncate">Total Deductions</span>
-              <span className="text-base sm:text-lg font-bold font-mono text-slate-800 tabular-nums block mt-0.5 truncate">
+            <div className="bg-slate-800/90 rounded-lg p-3 border border-slate-700/60 shadow-2xs">
+              <span className="text-[11px] font-medium text-slate-400 block truncate">Total Deductions</span>
+              <span className="text-base sm:text-lg font-bold font-mono text-slate-200 tabular-nums block mt-0.5 truncate">
                 {formatCHF(socialAmount + taxAmount)}
               </span>
               <span className="text-[10px] text-slate-400 block mt-0.5 truncate">
@@ -447,9 +447,6 @@ export const TaxBreakdownCard: React.FC<TaxBreakdownCardProps> = ({
             <div>
               <span className="font-extrabold text-emerald-950 text-sm sm:text-base block">
                 Net Take-Home Pay (Nettolohn)
-              </span>
-              <span className="text-[11px] text-emerald-700">
-                Disbursed to bank account {isMonthly ? 'each month' : 'annually'}
               </span>
             </div>
             <div className="text-right">
