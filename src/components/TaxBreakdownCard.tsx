@@ -191,7 +191,7 @@ export const TaxBreakdownCard: React.FC<TaxBreakdownCardProps> = ({
               </span>
               <span className="text-[11px] text-slate-500">Joint Swiss Married Tariff</span>
             </div>
-            <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 rounded-xl text-xs font-medium">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1 bg-slate-100 rounded-xl text-xs font-medium">
               <button
                 type="button"
                 onClick={() => setActiveProfileTab('combined')}

@@ -3,14 +3,12 @@ import { Printer, RefreshCw, Landmark } from 'lucide-react';
 
 interface HeaderProps {
   onReset: () => void;
-  onPrint: () => void;
   activeSection: string;
   setActiveSection: (section: string) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   onReset,
-  onPrint,
   activeSection,
   setActiveSection,
 }) => {
@@ -102,14 +100,6 @@ export const Header: React.FC<HeaderProps> = ({
             className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
           >
             <RefreshCw className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            onClick={onPrint}
-            className="flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold text-white bg-slate-900 rounded-lg hover:bg-slate-800 transition-colors shadow-xs whitespace-nowrap cursor-pointer"
-          >
-            <Printer className="w-3.5 h-3.5" />
-            <span>Print Payslip</span>
           </button>
         </div>
       </div>

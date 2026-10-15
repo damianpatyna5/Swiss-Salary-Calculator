@@ -54,10 +54,6 @@ export default function App() {
     setInputs(DEFAULT_INPUTS);
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   const handleSelectCanton = (code: string) => {
     setInputs((prev) => ({ ...prev, cantonCode: code }));
   };
@@ -67,7 +63,6 @@ export default function App() {
       {/* Header with Top Bar Contract */}
       <Header
         onReset={handleReset}
-        onPrint={handlePrint}
         activeSection={activeSection}
         setActiveSection={setActiveSection}
       />
@@ -78,8 +73,6 @@ export default function App() {
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-red-600 mb-1 uppercase tracking-wider">
               <span>Switzerland Net Salary &amp; Tax Calculator</span>
-              <span>·</span>
-              <span>2026 Guidelines</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
               Swiss Net Salary &amp; Tax Calculator
@@ -90,78 +83,75 @@ export default function App() {
           </div>
 
           {/* Quick Tab Bar */}
-          <div className="flex items-center gap-1.5 overflow-x-auto p-1 bg-slate-100 rounded-xl self-start md:self-auto shrink-0">
-            <button
-              type="button"
-              onClick={() => setActiveSection('calculator')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-                activeSection === 'calculator'
-                  ? 'bg-white text-slate-900 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Wallet className="w-3.5 h-3.5 text-red-600" />
-              Calculator &amp; Overview
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveSection('payslip')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-                activeSection === 'payslip'
-                  ? 'bg-white text-slate-900 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <FileText className="w-3.5 h-3.5 text-slate-500" />
-              Payslip (Lohnabrechnung)
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveSection('cantons')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-                activeSection === 'cantons'
-                  ? 'bg-white text-slate-900 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Building2 className="w-3.5 h-3.5 text-slate-500" />
-              Compare 26 Cantons
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveSection('employer')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-                activeSection === 'employer'
-                  ? 'bg-white text-slate-900 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Briefcase className="w-3.5 h-3.5 text-slate-500" />
-              Employer Cost
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveSection('guide')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-                activeSection === 'guide'
-                  ? 'bg-white text-slate-900 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
-              Guide
-            </button>
+          <div className="w-full md:w-auto overflow-x-auto p-1 bg-slate-100 rounded-xl max-w-full scrollbar-none">
+            <div className="flex items-center gap-1.5 min-w-max">
+              <button
+                type="button"
+                onClick={() => setActiveSection('calculator')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                  activeSection === 'calculator'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Wallet className="w-3.5 h-3.5 text-red-600" />
+                Calculator &amp; Overview
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveSection('payslip')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                  activeSection === 'payslip'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5 text-slate-500" />
+                Payslip (Lohnabrechnung)
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveSection('cantons')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                  activeSection === 'cantons'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Building2 className="w-3.5 h-3.5 text-slate-500" />
+                Compare 26 Cantons
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveSection('employer')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                  activeSection === 'employer'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Briefcase className="w-3.5 h-3.5 text-slate-500" />
+                Employer Cost
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveSection('guide')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                  activeSection === 'guide'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <HelpCircle className="w-3.5 h-3.5 text-slate-500" />
+                Guide
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Main Workspace Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Print-only Payslip view */}
-        <div className="hidden print-only">
-          <PayslipView result={result} onPrint={handlePrint} />
-        </div>
-
         {/* Section: Calculator / Main Dual Column */}
         {activeSection === 'calculator' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -184,7 +174,7 @@ export default function App() {
         {/* Section: Payslip Dedicated */}
         {activeSection === 'payslip' && (
           <div className="max-w-4xl mx-auto space-y-6">
-            <PayslipView result={result} onPrint={handlePrint} />
+            <PayslipView result={result} />
           </div>
         )}
 

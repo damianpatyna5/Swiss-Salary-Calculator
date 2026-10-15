@@ -5,10 +5,9 @@ import { FileText, Printer, User, Users } from 'lucide-react';
 
 interface PayslipViewProps {
   result: CalculationResult;
-  onPrint: () => void;
 }
 
-export const PayslipView: React.FC<PayslipViewProps> = ({ result, onPrint }) => {
+export const PayslipView: React.FC<PayslipViewProps> = ({ result }) => {
   const [viewMode, setViewMode] = useState<'monthly' | 'annual'>('monthly');
   const [personTab, setPersonTab] = useState<'primary' | 'spouse' | 'combined'>('primary');
 
@@ -157,14 +156,6 @@ export const PayslipView: React.FC<PayslipViewProps> = ({ result, onPrint }) => 
               Annual Total
             </button>
           </div>
-          <button
-            type="button"
-            onClick={onPrint}
-            className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-lg transition-colors cursor-pointer"
-            title="Print payslip"
-          >
-            <Printer className="w-4 h-4" />
-          </button>
         </div>
       </div>
 
