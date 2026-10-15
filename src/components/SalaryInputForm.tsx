@@ -121,9 +121,11 @@ export const SalaryInputForm: React.FC<SalaryInputFormProps> = ({ inputs, onChan
             min={0}
             step={1000}
             value={inputs.grossSalary || ''}
-            onChange={(e) =>
-              updateField('grossSalary', Math.max(0, parseFloat(e.target.value) || 0))
-            }
+            onFocus={(e) => e.target.select()}
+            onChange={(e) => {
+              const cleaned = e.target.value.replace(/^0+(?=\d)/, '');
+              updateField('grossSalary', Math.max(0, parseFloat(cleaned) || 0));
+            }}
             className="w-full px-3.5 py-2.5 text-lg font-extrabold text-slate-900 bg-transparent focus:outline-none tabular-nums font-mono tracking-tight placeholder-slate-300"
             placeholder={inputs.salaryPeriod === 'annual' ? '85000' : '7083'}
           />
@@ -327,77 +329,7 @@ export const SalaryInputForm: React.FC<SalaryInputFormProps> = ({ inputs, onChan
         )}
       </div>
 
-      {/* 6. Pillar 3a (Säule 3a) Contribution - Manual Entry & Slider */}
-      <div className="space-y-3 p-4 bg-slate-50/70 rounded-xl border border-slate-200/70">
-        <div className="flex items-center justify-between">
-          <label className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-            <PiggyBank className="w-4 h-4 text-red-600" />
-            Pillar 3a (Säule 3a) Contribution
-          </label>
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => updateField('pillar3aContribution', 7056)}
-              className="px-2.5 py-1 text-xs font-bold text-red-700 bg-red-100 hover:bg-red-200 rounded-md transition-colors cursor-pointer"
-              title="Set to annual legal maximum of CHF 7'056"
-            >
-              Max (CHF 7'056)
-            </button>
-            {inputs.pillar3aContribution > 0 && (
-              <button
-                type="button"
-                onClick={() => updateField('pillar3aContribution', 0)}
-                className="px-2 py-1 text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-200/70 rounded-md transition-colors cursor-pointer"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-        </div>
 
-        {/* Manual number entry */}
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 font-semibold text-xs font-mono">
-            CHF
-          </div>
-          <input
-            type="number"
-            min={0}
-            max={7056}
-            step={100}
-            value={inputs.pillar3aContribution === 0 ? '' : inputs.pillar3aContribution}
-            onChange={(e) => {
-              const val = e.target.value === '' ? 0 : parseFloat(e.target.value);
-              updateField('pillar3aContribution', Math.min(7056, Math.max(0, isNaN(val) ? 0 : val)));
-            }}
-            placeholder="0"
-            className="w-full pl-12 pr-16 py-2 bg-white border border-slate-200 rounded-lg text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 font-mono tabular-nums shadow-xs"
-          />
-          <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400 text-xs font-medium">
-            / year
-          </div>
-        </div>
-
-        {/* Interactive range slider */}
-        <div className="space-y-1">
-          <input
-            type="range"
-            min={0}
-            max={7056}
-            step={50}
-            value={inputs.pillar3aContribution}
-            onChange={(e) =>
-              updateField('pillar3aContribution', parseInt(e.target.value, 10) || 0)
-            }
-            className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-600"
-          />
-          <div className="flex justify-between items-center text-[10px] text-slate-500 pt-0.5 font-mono">
-            <span>CHF 0</span>
-            <span className="font-sans text-slate-400">Manual entry &amp; slider</span>
-            <span className="font-semibold text-slate-700">Max: CHF 7'056/yr</span>
-          </div>
-        </div>
-      </div>
 
       {/* 7. Marital Status (Zivilstand) */}
       <div className="space-y-2 pt-1 border-t border-slate-100">
@@ -532,12 +464,14 @@ export const SalaryInputForm: React.FC<SalaryInputFormProps> = ({ inputs, onChan
                   min={0}
                   step={1000}
                   value={inputs.spouseGrossSalary || ''}
-                  onChange={(e) =>
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => {
+                    const cleaned = e.target.value.replace(/^0+(?=\d)/, '');
                     updateField(
                       'spouseGrossSalary',
-                      Math.max(0, parseFloat(e.target.value) || 0)
-                    )
-                  }
+                      Math.max(0, parseFloat(cleaned) || 0)
+                    );
+                  }}
                   className="w-full px-3.5 py-2.5 text-lg font-extrabold text-slate-900 bg-transparent focus:outline-none tabular-nums font-mono tracking-tight placeholder-slate-300"
                   placeholder={inputs.spouseSalaryPeriod === 'annual' ? '65000' : '5416'}
                 />
@@ -610,80 +544,7 @@ export const SalaryInputForm: React.FC<SalaryInputFormProps> = ({ inputs, onChan
               />
             </div>
 
-            {/* Spouse Pillar 3a (Manual Entry & Slider) */}
-            <div className="space-y-3 pt-2 border-t border-red-200/50">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                  <PiggyBank className="w-4 h-4 text-red-600" />
-                  Spouse Pillar 3a Contribution
-                </label>
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => updateField('spousePillar3aContribution', 7056)}
-                    className="px-2.5 py-1 text-xs font-bold text-red-700 bg-red-100 hover:bg-red-200 rounded-md transition-colors cursor-pointer"
-                    title="Set to annual legal maximum of CHF 7'056"
-                  >
-                    Max (CHF 7'056)
-                  </button>
-                  {inputs.spousePillar3aContribution > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => updateField('spousePillar3aContribution', 0)}
-                      className="px-2 py-1 text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-200/70 rounded-md transition-colors cursor-pointer"
-                    >
-                      Clear
-                    </button>
-                  )}
-                </div>
-              </div>
 
-              {/* Manual input for spouse 3a */}
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 font-semibold text-xs font-mono">
-                  CHF
-                </div>
-                <input
-                  type="number"
-                  min={0}
-                  max={7056}
-                  step={100}
-                  value={inputs.spousePillar3aContribution === 0 ? '' : inputs.spousePillar3aContribution}
-                  onChange={(e) => {
-                    const val = e.target.value === '' ? 0 : parseFloat(e.target.value);
-                    updateField('spousePillar3aContribution', Math.min(7056, Math.max(0, isNaN(val) ? 0 : val)));
-                  }}
-                  placeholder="0"
-                  className="w-full pl-12 pr-16 py-2 bg-white border border-slate-200 rounded-lg text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-500 font-mono tabular-nums shadow-xs"
-                />
-                <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400 text-xs font-medium">
-                  / year
-                </div>
-              </div>
-
-              {/* Range slider for spouse 3a */}
-              <div className="space-y-1">
-                <input
-                  type="range"
-                  min={0}
-                  max={7056}
-                  step={50}
-                  value={inputs.spousePillar3aContribution}
-                  onChange={(e) =>
-                    updateField(
-                      'spousePillar3aContribution',
-                      parseInt(e.target.value, 10) || 0
-                    )
-                  }
-                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-600"
-                />
-                <div className="flex justify-between items-center text-[10px] text-slate-500 pt-0.5 font-mono">
-                  <span>CHF 0</span>
-                  <span className="font-sans text-slate-400">Manual entry &amp; slider</span>
-                  <span className="font-semibold text-slate-700">Max: CHF 7'056/yr</span>
-                </div>
-              </div>
-            </div>
           </div>
         )}
       </div>

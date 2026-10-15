@@ -207,31 +207,6 @@ export const PayslipView: React.FC<PayslipViewProps> = ({ result }) => {
 
       {/* Payslip Content Area */}
       <div className="p-6 md:p-8 space-y-6">
-        {/* Document Header */}
-        <div className="flex justify-between items-start border-b border-slate-200 pb-4 text-xs">
-          <div>
-            <div className="font-bold text-slate-900 text-sm">SAMPLE COMPANY SWITZERLAND AG</div>
-            <div className="text-slate-500">Bahnhofstrasse 100, 8001 Zürich</div>
-            <div className="text-slate-500 mt-0.5">UID: CHE-123.456.789 MWST</div>
-          </div>
-          <div className="text-right">
-            <div className="font-semibold text-slate-700">
-              Period: {isMonthly ? 'Current Month' : 'Full Calendar Year'}
-            </div>
-            <div className="text-slate-500">Residence: Canton {result.canton.name}</div>
-            <div className="text-slate-500">
-              Employee:{' '}
-              <strong className="text-slate-700">
-                {isCombinedView
-                  ? 'Household (Both Spouses)'
-                  : isSpouseView
-                  ? 'Spouse (Person 2)'
-                  : 'Primary Earer (Person 1)'}
-              </strong>
-            </div>
-          </div>
-        </div>
-
         {/* Payslip Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-xs">

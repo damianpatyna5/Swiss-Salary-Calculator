@@ -237,13 +237,11 @@ export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResul
     spouseSalaryPeriod = 'annual',
     spouseNumberOfMonths = 12,
     spouseAge = 32,
-    spousePillar3aContribution = 0,
     childrenUnder16,
     childrenEducation,
     age,
     isChurchMember = false,
     spouseIsChurchMember = false,
-    pillar3aContribution = 0,
     includeHealthInsurance = false,
     nbuRate = 1.2,
     ktgRate = 0.8,
@@ -323,12 +321,6 @@ export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResul
   const totalSocialMonthly =
     primarySocial.totalDeductionsMonthly + spouseSocial.totalDeductionsMonthly;
 
-  const primaryPillar3aCapped = Math.min(Math.max(0, pillar3aContribution), 7056);
-  const spousePillar3aCapped = isDualIncome
-    ? Math.min(Math.max(0, spousePillar3aContribution), 7056)
-    : 0;
-  const totalPillar3a = primaryPillar3aCapped + spousePillar3aCapped;
-
   const insuranceDeduction = isMarried
     ? FEDERAL_INSURANCE_DEDUCTION_MARRIED
     : FEDERAL_INSURANCE_DEDUCTION_SINGLE;
@@ -346,7 +338,6 @@ export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResul
     householdGrossAnnual +
       totalAllowanceAnnual -
       totalSocialAnnual -
-      totalPillar3a -
       (isDualIncome ? FEDERAL_PROFESSIONAL_DEDUCTION * 2 : FEDERAL_PROFESSIONAL_DEDUCTION) -
       insuranceDeduction -
       childDeductionsTotal -
@@ -462,7 +453,6 @@ export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResul
     netPayMonthly: primaryNetPayMonthly,
     totalRetentionRate:
       primaryGrossAnnual > 0 ? (primaryNetPayAnnual / primaryGrossAnnual) * 100 : 0,
-    pillar3a: primaryPillar3aCapped,
   };
 
   let spouseResult: typeof primaryResult | undefined = undefined;
@@ -500,7 +490,6 @@ export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResul
         spouseGrossAnnual > 0
           ? (spouseNetPayAnnual / spouseGrossAnnual) * 100
           : 0,
-      pillar3a: spousePillar3aCapped,
     };
   }
 

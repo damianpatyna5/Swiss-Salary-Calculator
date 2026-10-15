@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 
 const DEFAULT_INPUTS: CalculatorInputs = {
-  grossSalary: 85000,
+  grossSalary: 80000,
   salaryPeriod: 'annual',
   numberOfMonths: 12,
   cantonCode: 'ZH',
@@ -33,14 +33,12 @@ const DEFAULT_INPUTS: CalculatorInputs = {
   spouseSalaryPeriod: 'annual',
   spouseNumberOfMonths: 12,
   spouseAge: 32,
-  spousePillar3aContribution: 0,
   spouseIsChurchMember: false,
   childrenUnder16: 0,
   childrenEducation: 0,
   age: 32,
   isChurchMember: false,
   taxationType: 'ordinary',
-  pillar3aContribution: 0,
   includeHealthInsurance: false,
   nbuRate: 1.2,
   ktgRate: 0.8,
@@ -239,17 +237,7 @@ export default function App() {
         )}
 
         {/* Bottom Contextual Insights Strip */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-200">
-          <div className="bg-white p-4 rounded-xl border border-slate-200/80">
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
-              <TrendingUp className="w-4 h-4 text-emerald-600" />
-              Retain More With Pillar 3a
-            </div>
-            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-              Contributing the maximum CHF 7'056/year to Pillar 3a can reduce your tax bill by CHF 1'200 – CHF 2'400 depending on your canton and tax bracket.
-            </p>
-          </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-200">
           <div className="bg-white p-4 rounded-xl border border-slate-200/80">
             <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
               <Building2 className="w-4 h-4 text-blue-600" />

@@ -34,7 +34,6 @@ export interface CalculatorInputs {
   spouseSalaryPeriod: 'monthly' | 'annual';
   spouseNumberOfMonths: 12 | 13;
   spouseAge: number;
-  spousePillar3aContribution: number;
   spouseIsChurchMember: boolean; // Yes / No
   // Children & Family
   childrenUnder16: number;
@@ -42,7 +41,6 @@ export interface CalculatorInputs {
   age: number; // Used for BVG
   isChurchMember: boolean; // Yes / No
   taxationType: TaxationType;
-  pillar3aContribution: number; // Max CHF 7,056 for employees
   includeHealthInsurance: boolean;
   nbuRate?: number; // Statutory default 1.2%
   ktgRate?: number; // Statutory default 0.8%
@@ -130,7 +128,6 @@ export interface IndividualSalaryResult {
   netPayAnnual: number;
   netPayMonthly: number;
   totalRetentionRate: number;
-  pillar3a: number;
 }
 
 export interface CalculationResult {

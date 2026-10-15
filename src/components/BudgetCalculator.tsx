@@ -47,18 +47,23 @@ export const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ result }) =>
       { id: 'car', name: 'Car', amount: car, icon: <Car className="w-4 h-4 text-indigo-600" /> },
       { id: 'transport', name: 'Public Transport', amount: transport, icon: <Train className="w-4 h-4 text-cyan-600" /> },
       { id: 'leisure', name: 'Leisure & Entertainment', amount: leisure, icon: <Coffee className="w-4 h-4 text-pink-600" /> },
-      { id: 'savings', name: 'Savings & Investments (Pillar 3a, Investments)', amount: savings, icon: <PiggyBank className="w-4 h-4 text-purple-600" /> },
+      { id: 'savings', name: 'Savings & Investments (Investments)', amount: savings, icon: <PiggyBank className="w-4 h-4 text-purple-600" /> },
       { id: 'other', name: 'Other', amount: other, icon: <MoreHorizontal className="w-4 h-4 text-slate-600" /> },
     ];
   };
 
   const [budgetItems, setBudgetItems] = useState<BudgetItem[]>(() => getSwissStandardDefaultItems(netMonthly));
+  const [isOverridingNet, setIsOverridingNet] = useState<boolean>(false);
+  const [overrideNetMonthly, setOverrideNetMonthly] = useState<number>(netMonthly);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newCategoryAmount, setNewCategoryAmount] = useState<number>(200);
 
+  const effectiveNetMonthly = isOverridingNet ? overrideNetMonthly : netMonthly;
+  const effectiveNetAnnual = effectiveNetMonthly * 12;
+
   const totalAllocated = budgetItems.reduce((sum, item) => sum + item.amount, 0);
-  const remainingBalance = netMonthly - totalAllocated;
-  const allocationPercentage = netMonthly > 0 ? (totalAllocated / netMonthly) * 100 : 0;
+  const remainingBalance = effectiveNetMonthly - totalAllocated;
+  const allocationPercentage = effectiveNetMonthly > 0 ? (totalAllocated / effectiveNetMonthly) * 100 : 0;
 
   const handleAmountChange = (id: string, val: number) => {
     setBudgetItems(prev => prev.map(item => item.id === id ? { ...item, amount: Math.max(0, val) } : item));
@@ -83,7 +88,7 @@ export const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ result }) =>
   };
 
   const handleResetDefaults = () => {
-    setBudgetItems(getSwissStandardDefaultItems(netMonthly));
+    setBudgetItems(getSwissStandardDefaultItems(effectiveNetMonthly));
   };
 
   return (
@@ -122,12 +127,53 @@ export const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ result }) =>
 
         {/* Key Metrics Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6">
-          <div className="bg-slate-900 text-white p-5 rounded-xl shadow-xs">
-            <div className="text-xs font-medium text-slate-300 uppercase tracking-wider">Net Home Pay (Monthly)</div>
-            <div className="text-2xl sm:text-3xl font-extrabold mt-1 text-emerald-400">
-              {formatCHF(netMonthly)}
+          <div className="bg-slate-900 text-white p-5 rounded-xl shadow-xs space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="text-xs font-medium text-slate-300 uppercase tracking-wider">Net Home Pay (Monthly)</div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!isOverridingNet) {
+                    setOverrideNetMonthly(netMonthly);
+                  }
+                  setIsOverridingNet(!isOverridingNet);
+                }}
+                className="text-[11px] font-semibold text-red-400 hover:text-red-300 cursor-pointer underline"
+              >
+                {isOverridingNet ? 'Use Calculated' : 'Set Manually'}
+              </button>
             </div>
-            <div className="text-xs text-slate-400 mt-1">Annual: {formatCHF(netAnnual)}</div>
+            {isOverridingNet ? (
+              <div className="flex items-center gap-2 pt-1">
+                <span className="text-xs text-slate-400 font-mono">CHF</span>
+                <input
+                  type="number"
+                  min={0}
+                  step={100}
+                  placeholder="0"
+                  value={overrideNetMonthly === 0 ? '' : overrideNetMonthly}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => {
+                    const raw = e.target.value;
+                    if (raw === '') {
+                      setOverrideNetMonthly(0);
+                      return;
+                    }
+                    const cleaned = raw.replace(/^0+(?=\d)/, '');
+                    setOverrideNetMonthly(Math.max(0, parseFloat(cleaned) || 0));
+                  }}
+                  className="w-full px-2.5 py-1 bg-slate-800 border border-slate-700 rounded-lg text-lg font-extrabold text-emerald-400 focus:outline-none focus:ring-2 focus:ring-red-500 font-mono placeholder-slate-600"
+                />
+                <div className="text-xs text-slate-400 mt-1">Annual: {formatCHF(effectiveNetAnnual)}</div>
+              </div>
+            ) : (
+              <>
+                <div className="text-2xl sm:text-3xl font-extrabold mt-1 text-emerald-400 font-mono">
+                  {formatCHF(netMonthly)}
+                </div>
+                <div className="text-xs text-slate-400 mt-1">Annual: {formatCHF(netAnnual)}</div>
+              </>
+            )}
           </div>
 
           <div className="bg-slate-50 border border-slate-200 p-5 rounded-xl">
@@ -163,7 +209,7 @@ export const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ result }) =>
 
           <div className="space-y-4">
             {budgetItems.map((item) => {
-              const percentage = netMonthly > 0 ? (item.amount / netMonthly) * 100 : 0;
+              const percentage = effectiveNetMonthly > 0 ? (item.amount / effectiveNetMonthly) * 100 : 0;
               return (
                 <div key={item.id} className="p-4 bg-slate-50 border border-slate-200/80 rounded-xl space-y-2">
                   <div className="flex items-center justify-between">
@@ -201,8 +247,20 @@ export const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ result }) =>
                     />
                     <input
                       type="number"
-                      value={item.amount}
-                      onChange={(e) => handleAmountChange(item.id, Number(e.target.value))}
+                      min={0}
+                      step={50}
+                      placeholder="0"
+                      value={item.amount === 0 ? '' : item.amount}
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => {
+                        const raw = e.target.value;
+                        if (raw === '') {
+                          handleAmountChange(item.id, 0);
+                          return;
+                        }
+                        const cleaned = raw.replace(/^0+(?=\d)/, '');
+                        handleAmountChange(item.id, Math.max(0, parseFloat(cleaned) || 0));
+                      }}
                       className="w-28 px-3 py-1 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 text-right focus:outline-none focus:ring-2 focus:ring-red-600"
                     />
                   </div>
@@ -222,9 +280,19 @@ export const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ result }) =>
             />
             <input
               type="number"
+              min={0}
               placeholder="Monthly CHF"
-              value={newCategoryAmount}
-              onChange={(e) => setNewCategoryAmount(Number(e.target.value))}
+              value={newCategoryAmount === 0 ? '' : newCategoryAmount}
+              onFocus={(e) => e.target.select()}
+              onChange={(e) => {
+                const raw = e.target.value;
+                if (raw === '') {
+                  setNewCategoryAmount(0);
+                  return;
+                }
+                const cleaned = raw.replace(/^0+(?=\d)/, '');
+                setNewCategoryAmount(Math.max(0, parseFloat(cleaned) || 0));
+              }}
               className="w-32 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600"
             />
             <button
@@ -245,7 +313,7 @@ export const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ result }) =>
             {/* Visual Progress Bar */}
             <div className="w-full h-4 bg-slate-100 rounded-full overflow-hidden flex shadow-inner">
               {budgetItems.map((item, idx) => {
-                const pct = netMonthly > 0 ? (item.amount / netMonthly) * 100 : 0;
+                const pct = effectiveNetMonthly > 0 ? (item.amount / effectiveNetMonthly) * 100 : 0;
                 const colors = [
                   'bg-blue-500', 'bg-emerald-500', 'bg-red-500', 'bg-amber-500', 
                   'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-teal-500', 'bg-orange-500'
@@ -263,7 +331,7 @@ export const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ result }) =>
 
             <div className="grid grid-cols-2 gap-2 pt-2">
               {budgetItems.map((item, idx) => {
-                const pct = netMonthly > 0 ? (item.amount / netMonthly) * 100 : 0;
+                const pct = effectiveNetMonthly > 0 ? (item.amount / effectiveNetMonthly) * 100 : 0;
                 const dotColors = [
                   'bg-blue-500', 'bg-emerald-500', 'bg-red-500', 'bg-amber-500', 
                   'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-teal-500', 'bg-orange-500'
