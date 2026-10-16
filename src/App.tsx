@@ -121,6 +121,12 @@ export default function App() {
         {/* Section: Payslip Dedicated */}
         {activeSection === 'payslip' && (
           <div className="max-w-4xl mx-auto space-y-6">
+            <button
+              onClick={() => setActiveSection('calculator')}
+              className="px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors cursor-pointer no-print"
+            >
+              ← Back to Salary Calculator
+            </button>
             <PayslipView result={result} />
           </div>
         )}
@@ -128,15 +134,25 @@ export default function App() {
         {/* Section: Canton Comparison */}
         {activeSection === 'cantons' && (
           <div className="space-y-6">
+            <button
+              onClick={() => setActiveSection('calculator')}
+              className="px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors cursor-pointer"
+            >
+              ← Back to Salary Calculator
+            </button>
             <CantonComparison inputs={inputs} onSelectCanton={handleSelectCanton} />
           </div>
         )}
 
-
-
         {/* Section: Swiss Guide */}
         {activeSection === 'guide' && (
           <div className="max-w-4xl mx-auto space-y-6">
+            <button
+              onClick={() => setActiveSection('calculator')}
+              className="px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors cursor-pointer"
+            >
+              ← Back to Salary Calculator
+            </button>
             <SwissSalaryGuide />
           </div>
         )}
