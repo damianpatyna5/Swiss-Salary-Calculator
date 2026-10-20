@@ -47,17 +47,6 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => setActiveSection('payslip')}
-            className={`cursor-pointer whitespace-nowrap transition-colors hover:text-slate-900 ${
-              activeSection === 'payslip'
-                ? 'text-red-600 font-semibold border-b-2 border-red-600 pb-0.5'
-                : ''
-            }`}
-          >
-            Payslip View
-          </button>
-          <button
-            type="button"
             onClick={() => setActiveSection('budget')}
             className={`cursor-pointer whitespace-nowrap transition-colors hover:text-slate-900 ${
               activeSection === 'budget'
@@ -66,6 +55,17 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             Budget Calculator
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveSection('payslip')}
+            className={`cursor-pointer whitespace-nowrap transition-colors hover:text-slate-900 ${
+              activeSection === 'payslip'
+                ? 'text-red-600 font-semibold border-b-2 border-red-600 pb-0.5'
+                : ''
+            }`}
+          >
+            Payslip View
           </button>
           <button
             type="button"
