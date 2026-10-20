@@ -132,6 +132,9 @@ export const PayslipView: React.FC<PayslipViewProps> = ({ result }) => {
             </h3>
             <p className="text-xs text-slate-300 mt-0.5">
               Canton {result.canton.name} ({result.canton.code}) · {currentMonths} Salary Model
+              {result.isCrossBorder && result.crossBorderSummary
+                ? ` · Permit G (${result.crossBorderSummary.countryName} Frontalier)`
+                : ''}
             </p>
           </div>
         </div>
@@ -496,6 +499,11 @@ export const PayslipView: React.FC<PayslipViewProps> = ({ result }) => {
             <div className="text-xs text-slate-600 mt-1">
               Net retention: <span className="font-bold text-slate-900">{formatPercent(retentionRate)}</span> of gross salary
             </div>
+            {result.isCrossBorder && result.crossBorderSummary && (
+              <div className="text-xs font-semibold text-emerald-800 mt-1">
+                Approx. <span className="font-mono font-bold">€{Math.round(finalNetPay * result.crossBorderSummary.eurExchangeRate).toLocaleString()}</span> /{isMonthly ? 'month' : 'year'} ({result.crossBorderSummary.countryName} Frontalier)
+              </div>
+            )}
           </div>
         </div>
       </div>

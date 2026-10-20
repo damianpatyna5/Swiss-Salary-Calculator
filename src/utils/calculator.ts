@@ -25,6 +25,10 @@ const BVG_COORDINATION_DEDUCTION = 25725;
 const BVG_MAX_COORDINATED_SALARY = 62475;
 const BVG_MIN_COORDINATED_SALARY = 3675;
 
+// Cross-border agreement constants
+export const FR_1983_ACCORD_CANTONS = new Set(['BE', 'BL', 'BS', 'JU', 'NE', 'SO', 'VD', 'VS']);
+export const EUR_CHF_EXCHANGE_RATE = 0.95; // 1 CHF ≈ 0.95 EUR
+
 /**
  * Determine BVG employee contribution rate based on age
  */
@@ -355,11 +359,11 @@ export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResul
     totalChildren
   );
 
-  const cantonalTaxAnnual = cantonalTax;
-  const cantonalTaxMonthly = cantonalTaxAnnual / 12;
+  let cantonalTaxAnnual = cantonalTax;
+  let cantonalTaxMonthly = cantonalTaxAnnual / 12;
 
-  const municipalTaxAnnual = municipalTax;
-  const municipalTaxMonthly = municipalTaxAnnual / 12;
+  let municipalTaxAnnual = municipalTax;
+  let municipalTaxMonthly = municipalTaxAnnual / 12;
 
   // Church Tax (calculated for primary and spouse individually)
   const primaryShareRatio =
@@ -387,12 +391,160 @@ export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResul
     }
   }
 
-  const churchTaxAnnual = primaryChurchTax + spouseChurchTax;
-  const churchTaxMonthly = churchTaxAnnual / 12;
+  let churchTaxAnnual = primaryChurchTax + spouseChurchTax;
+  let churchTaxMonthly = churchTaxAnnual / 12;
 
-  const totalTaxAnnual =
+  // Cross-Border Worker (Frontalier / Grenzgänger) Tax Adjustments
+  const isCrossBorder = inputs.residenceStatus === 'cross_border';
+  const cb = inputs.crossBorder || {
+    country: 'FR',
+    commuteType: 'daily',
+    hasFrenchTaxCertificate: true,
+    franceHealthOption: 'lamal',
+    teleworkPercent: 0,
+    hasGermanGrenzgangerCert: true,
+    italyRegime: 'new',
+    isWithin20kmZone: true,
+  };
+
+  let totalTaxAnnual =
     federalTaxAnnual + cantonalTaxAnnual + municipalTaxAnnual + churchTaxAnnual;
-  const totalTaxMonthly = totalTaxAnnual / 12;
+  let totalTaxMonthly = totalTaxAnnual / 12;
+
+  let crossBorderSummary: CalculationResult['crossBorderSummary'] = undefined;
+
+  if (isCrossBorder) {
+    let swissTaxAnnual = totalTaxAnnual;
+    let taxRegimeTitle = 'Swiss Withholding Tax (Quellensteuer)';
+    let taxRegimeDescription = 'Standard Swiss withholding tax deducted at source by employer.';
+    let homeCountryTaxNote = 'Foreign tax credit applied in residence country.';
+    let countryName = 'Cross-Border';
+    let maxTelework = 25;
+
+    if (cb.country === 'FR') {
+      countryName = 'France';
+      maxTelework = 40;
+      if (cantonCode === 'GE') {
+        taxRegimeTitle = 'Geneva (GE) 1973 Accord — Swiss Tax at Source';
+        taxRegimeDescription = 'Geneva withholds income tax directly at source. ~3.5% is retroceded to Ain & Haute-Savoie departments.';
+        homeCountryTaxNote = 'Declare in France on Form 2042. French tax credit avoids double taxation (taux effectif global).';
+      } else if (FR_1983_ACCORD_CANTONS.has(cantonCode)) {
+        if (cb.commuteType === 'daily' && cb.hasFrenchTaxCertificate) {
+          swissTaxAnnual = 0;
+          federalTaxAnnual = 0;
+          cantonalTaxAnnual = 0;
+          municipalTaxAnnual = 0;
+          churchTaxAnnual = 0;
+          primaryChurchTax = 0;
+          spouseChurchTax = 0;
+          taxRegimeTitle = '1983 Accord (8 Cantons) — 0.0% Swiss Withholding Tax';
+          taxRegimeDescription = `Daily commuter in Canton ${canton.name} holding French certificate (Formulaire 2041-AS). Zero Swiss tax withheld by employer.`;
+          homeCountryTaxNote = 'Taxed exclusively in France by DGFiP according to French progressive income tax tranches.';
+        } else {
+          taxRegimeTitle = 'Swiss Withholding Tax (Weekly Commuter / No Certificate)';
+          taxRegimeDescription = 'Without French 2041-AS certificate or for weekly commuters, taxes are withheld at source in Switzerland.';
+          homeCountryTaxNote = 'Swiss tax withheld is credited in France to prevent double taxation.';
+        }
+      } else {
+        taxRegimeTitle = 'Standard Swiss Withholding Tax (Quellensteuer)';
+        taxRegimeDescription = `Canton ${canton.name} is not part of the 1983 accord. Employer withholds Swiss tax at source.`;
+        homeCountryTaxNote = 'Declared in France with a foreign tax credit equivalent to Swiss tax withheld.';
+      }
+    } else if (cb.country === 'DE') {
+      countryName = 'Germany';
+      maxTelework = 25;
+      if (cb.commuteType === 'daily' && cb.hasGermanGrenzgangerCert) {
+        swissTaxAnnual = householdGrossAnnual * 0.045;
+        federalTaxAnnual = swissTaxAnnual * 0.35;
+        cantonalTaxAnnual = swissTaxAnnual * 0.40;
+        municipalTaxAnnual = swissTaxAnnual * 0.25;
+        churchTaxAnnual = 0;
+        primaryChurchTax = 0;
+        spouseChurchTax = 0;
+        taxRegimeTitle = 'DBA DE-CH Art. 15a — 4.50% Flat Swiss Withholding Tax';
+        taxRegimeDescription = 'Switzerland levies a flat 4.50% withholding tax (Pauschalsteuer) deducted directly from your gross wage by your employer.';
+        homeCountryTaxNote = 'In Germany, declared under German Einkommensteuer. The 4.5% Swiss tax is 100% credited against your German tax obligation.';
+      } else {
+        taxRegimeTitle = 'Non-Returner / Weekly Commuter (>60 Days) — Swiss Withholding Tax';
+        taxRegimeDescription = 'Commuters spending >60 non-return days in Switzerland are taxed under Swiss cantonal withholding tax at source.';
+        homeCountryTaxNote = 'Income taxed in Germany with credit for Swiss withholding taxes.';
+      }
+    } else if (cb.country === 'IT') {
+      countryName = 'Italy';
+      maxTelework = 25;
+      if (cb.italyRegime === 'old') {
+        taxRegimeTitle = 'Vecchi Frontalieri (Pre-July 2023) — 100% Swiss Withholding Tax';
+        taxRegimeDescription = 'Grandfathered under the pre-2023 accord: 100% taxed at source in Switzerland. Exempt from Italian IRPEF taxation.';
+        homeCountryTaxNote = 'Exempt from Italian income tax declaration for Swiss employment income in border cantons (TI, GR, VS).';
+      } else {
+        swissTaxAnnual = totalTaxAnnual * 0.80;
+        federalTaxAnnual = federalTaxAnnual * 0.80;
+        cantonalTaxAnnual = cantonalTaxAnnual * 0.80;
+        municipalTaxAnnual = municipalTaxAnnual * 0.80;
+        churchTaxAnnual = 0;
+        primaryChurchTax = 0;
+        spouseChurchTax = 0;
+        taxRegimeTitle = 'Nuovi Frontalieri (2024 Accord) — 80% Swiss Withholding Tax';
+        taxRegimeDescription = 'Under the 2024 bilateral treaty, Switzerland withholds 80% of ordinary withholding tax at source.';
+        homeCountryTaxNote = 'In Italy, income is declared with a €10,000 tax-free allowance (no-tax area), and Swiss tax paid is credited against Italian IRPEF.';
+      }
+    } else if (cb.country === 'AT') {
+      countryName = 'Austria';
+      maxTelework = 25;
+      if (cb.commuteType === 'daily') {
+        swissTaxAnnual = householdGrossAnnual * 0.03;
+        federalTaxAnnual = swissTaxAnnual * 0.40;
+        cantonalTaxAnnual = swissTaxAnnual * 0.60;
+        municipalTaxAnnual = 0;
+        churchTaxAnnual = 0;
+        primaryChurchTax = 0;
+        spouseChurchTax = 0;
+        taxRegimeTitle = 'DBA AT-CH — 3.00% Flat Swiss Withholding Tax';
+        taxRegimeDescription = 'Daily commuters under the Austria-Switzerland treaty are subject to a maximum 3.0% flat tax in Switzerland.';
+        homeCountryTaxNote = 'Austria taxes gross income under Austrian Einkommensteuer with full credit for the 3% Swiss withholding tax.';
+      } else {
+        taxRegimeTitle = 'Standard Swiss Withholding Tax';
+        taxRegimeDescription = 'Weekly commuters are subject to ordinary Swiss withholding tax at source.';
+        homeCountryTaxNote = 'Taxed in Austria with credit for Swiss withholding taxes.';
+      }
+    } else {
+      countryName = 'Other Country';
+      maxTelework = 25;
+      taxRegimeTitle = 'Standard Swiss Withholding Tax (Quellensteuer)';
+      taxRegimeDescription = 'Withholding tax deducted at source by your Swiss employer.';
+      homeCountryTaxNote = 'Consult bilateral double taxation agreement for foreign tax credit mechanisms.';
+    }
+
+    totalTaxAnnual = swissTaxAnnual;
+    totalTaxMonthly = totalTaxAnnual / 12;
+
+    const teleworkPct = cb.teleworkPercent || 0;
+    const isCompliant = teleworkPct <= maxTelework;
+
+    crossBorderSummary = {
+      country: cb.country,
+      countryName,
+      commuteType: cb.commuteType,
+      taxRegimeTitle,
+      taxRegimeDescription,
+      swissTaxRate: householdGrossAnnual > 0 ? (totalTaxAnnual / householdGrossAnnual) * 100 : 0,
+      swissTaxWithheldAnnual: totalTaxAnnual,
+      swissTaxWithheldMonthly: totalTaxMonthly,
+      homeCountryTaxNote,
+      teleworkStatus: {
+        percent: teleworkPct,
+        maxAllowed: maxTelework,
+        isCompliant,
+        note: isCompliant
+          ? `${teleworkPct}% is within the allowed ${maxTelework}% quota under bilateral treaties.`
+          : `Warning: ${teleworkPct}% exceeds the ${maxTelework}% quota and may affect your tax/social status!`,
+      },
+      healthInsuranceOption: cb.country === 'FR' ? (cb.franceHealthOption === 'lamal' ? 'LAMal Frontalier (~CHF 175/mo)' : 'French CMU/PUMA (8%)') : undefined,
+      estimatedEurMonthly: 0,
+      estimatedEurAnnual: 0,
+      eurExchangeRate: EUR_CHF_EXCHANGE_RATE,
+    };
+  }
 
   const effectiveTaxRate =
     householdGrossAnnual > 0 ? (totalTaxAnnual / householdGrossAnnual) * 100 : 0;
@@ -505,7 +657,11 @@ export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResul
   const netBeforeTaxMonthly = primaryNetBeforeTaxMonthly + spouseNetBeforeTaxMonthly;
 
   // 7. Health Insurance Benchmark
-  const adultHealthMonthly = canton.avgHealthInsuranceMonthly * (isMarried ? 2 : 1);
+  const baseAdultHealthRate =
+    isCrossBorder && cb.country === 'FR' && cb.franceHealthOption === 'lamal'
+      ? 175
+      : canton.avgHealthInsuranceMonthly;
+  const adultHealthMonthly = baseAdultHealthRate * (isMarried ? 2 : 1);
   const childHealthMonthly = totalChildren * 110;
   const healthInsuranceMonthly = includeHealthInsurance
     ? adultHealthMonthly + childHealthMonthly
@@ -544,6 +700,11 @@ export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResul
   const totalRetentionRate =
     householdGrossAnnual > 0 ? (netPayAnnual / householdGrossAnnual) * 100 : 0;
 
+  if (crossBorderSummary) {
+    crossBorderSummary.estimatedEurMonthly = Math.round(netPayMonthly * EUR_CHF_EXCHANGE_RATE);
+    crossBorderSummary.estimatedEurAnnual = Math.round(netPayAnnual * EUR_CHF_EXCHANGE_RATE);
+  }
+
   return {
     inputs,
     canton,
@@ -572,6 +733,8 @@ export function calculateSwissSalary(inputs: CalculatorInputs): CalculationResul
     healthInsuranceMonthly,
     employerCost,
     totalRetentionRate,
+    isCrossBorder,
+    crossBorderSummary,
   };
 }
 

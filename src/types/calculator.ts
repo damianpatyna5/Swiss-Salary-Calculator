@@ -6,6 +6,26 @@ export type TaxationType = 'ordinary' | 'quellensteuer';
 
 export type AgeGroup = 'under_25' | '25_34' | '35_44' | '45_54' | '55_65' | 'over_65';
 
+export type ResidenceStatus = 'resident' | 'cross_border';
+export type CrossBorderCountry = 'FR' | 'DE' | 'IT' | 'AT' | 'OTHER';
+export type CommuteType = 'daily' | 'weekly';
+export type ItalyFrontalierRegime = 'new' | 'old';
+export type FranceHealthInsuranceOption = 'lamal' | 'cmu';
+
+export interface CrossBorderDetails {
+  country: CrossBorderCountry;
+  commuteType: CommuteType;
+  // France
+  hasFrenchTaxCertificate: boolean; // Formulaire 2041-AS (for 8 cantons accord -> 0% Swiss tax)
+  franceHealthOption: FranceHealthInsuranceOption; // LAMal frontalier vs CMU
+  teleworkPercent: number; // e.g. 0 to 40%
+  // Germany
+  hasGermanGrenzgangerCert: boolean; // Gre-1/Gre-2 (4.5% flat Swiss tax)
+  // Italy
+  italyRegime: ItalyFrontalierRegime; // 'new' (2024 Accord, 80% CH tax) vs 'old' (100% CH tax)
+  isWithin20kmZone: boolean;
+}
+
 export interface CantonInfo {
   code: string;
   name: string;
@@ -44,6 +64,9 @@ export interface CalculatorInputs {
   includeHealthInsurance: boolean;
   nbuRate?: number; // Statutory default 1.2%
   ktgRate?: number; // Statutory default 0.8%
+  // Cross-Border Worker (Frontalier / Grenzgänger) Options
+  residenceStatus?: ResidenceStatus; // 'resident' | 'cross_border'
+  crossBorder?: CrossBorderDetails;
 }
 
 export interface SocialSecurityDeductions {
@@ -154,5 +177,28 @@ export interface CalculationResult {
   healthInsuranceMonthly: number;
   employerCost: EmployerContributions;
   totalRetentionRate: number; // Net / Gross %
+  // Cross-border results
+  isCrossBorder: boolean;
+  crossBorderSummary?: {
+    country: CrossBorderCountry;
+    countryName: string;
+    commuteType: CommuteType;
+    taxRegimeTitle: string;
+    taxRegimeDescription: string;
+    swissTaxRate: number; // Effective Swiss withholding tax rate %
+    swissTaxWithheldAnnual: number;
+    swissTaxWithheldMonthly: number;
+    homeCountryTaxNote: string;
+    teleworkStatus?: {
+      percent: number;
+      maxAllowed: number;
+      isCompliant: boolean;
+      note: string;
+    };
+    healthInsuranceOption?: string;
+    estimatedEurMonthly: number;
+    estimatedEurAnnual: number;
+    eurExchangeRate: number;
+  };
 }
 

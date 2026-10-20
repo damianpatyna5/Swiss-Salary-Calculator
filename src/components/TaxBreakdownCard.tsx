@@ -11,6 +11,7 @@ import {
   Landmark,
   Baby,
   ArrowRight,
+  Globe,
 } from 'lucide-react';
 
 interface TaxBreakdownCardProps {
@@ -296,7 +297,54 @@ export const TaxBreakdownCard: React.FC<TaxBreakdownCardProps> = ({
               </span>
             </div>
           </div>
+
+          {result.isCrossBorder && result.crossBorderSummary && (
+            <div className="pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold text-[11px]">
+                  {result.crossBorderSummary.countryName} Frontalier
+                </span>
+                <span className="text-slate-300 text-[11px]">
+                  Approx. <strong className="text-emerald-400 font-mono font-bold">€{Math.round(netPayAmount * result.crossBorderSummary.eurExchangeRate).toLocaleString()}</strong> {isMonthly ? '/ mo' : '/ yr'}
+                </span>
+              </div>
+              <span className="text-[10px] text-slate-400 font-mono">
+                FX: 1 CHF ≈ €{result.crossBorderSummary.eurExchangeRate}
+              </span>
+            </div>
+          )}
         </div>
+
+        {/* Cross-Border Specific Tax Treaty Breakdown */}
+        {result.isCrossBorder && result.crossBorderSummary && (
+          <div className="p-4 bg-emerald-50/70 border border-emerald-200 rounded-xl space-y-2 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-emerald-950 flex items-center gap-1.5">
+                <Globe className="w-4 h-4 text-emerald-700" />
+                {result.crossBorderSummary.taxRegimeTitle}
+              </span>
+              <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono font-bold text-[11px]">
+                {result.crossBorderSummary.swissTaxRate === 0
+                  ? '0.0% Swiss Tax'
+                  : `${result.crossBorderSummary.swissTaxRate.toFixed(2)}% Swiss Tax`}
+              </span>
+            </div>
+            <p className="text-[11px] text-emerald-900 leading-relaxed">
+              {result.crossBorderSummary.taxRegimeDescription}
+            </p>
+            <div className="pt-2 border-t border-emerald-200/70 text-[11px] text-emerald-800">
+              <strong>Residence Country Status:</strong> {result.crossBorderSummary.homeCountryTaxNote}
+            </div>
+            {result.crossBorderSummary.teleworkStatus && (
+              <div className="pt-1.5 flex items-center justify-between text-[11px] border-t border-emerald-200/40">
+                <span className="text-emerald-900 font-medium">Teleworking (Home Office):</span>
+                <span className={result.crossBorderSummary.teleworkStatus.isCompliant ? 'text-emerald-800 font-semibold' : 'text-red-700 font-semibold'}>
+                  {result.crossBorderSummary.teleworkStatus.note}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Sleek Allocation Proportion Bar */}
         <div className="space-y-1.5">

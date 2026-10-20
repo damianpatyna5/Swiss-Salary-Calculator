@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, MapPin, Send, MessageSquare, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Mail, Send, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export const ContactPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -140,36 +140,16 @@ export const ContactPage: React.FC = () => {
                   <Mail className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="font-semibold text-slate-800">Email Support</div>
+                  <div className="font-semibold text-slate-800">Email Contact</div>
                   <a
                     href="mailto:contact@lohnlab.ch"
                     className="text-red-600 hover:underline font-mono text-[11px]"
                   >
                     contact@lohnlab.ch
                   </a>
-                  <div className="text-[10px] text-slate-400 mt-0.5">Response within 24h</div>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
-                  <MapPin className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="font-semibold text-slate-800">Headquarters</div>
-                  <div className="text-slate-600">Zurich, Switzerland</div>
-                  <div className="text-[10px] text-slate-400 mt-0.5">CH-8001 Zürich</div>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
-                  <Clock className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="font-semibold text-slate-800">Operating Hours</div>
-                  <div className="text-slate-600">Monday – Friday: 08:30 – 17:30 CET</div>
-                  <div className="text-[10px] text-slate-400 mt-0.5">Except Swiss federal holidays</div>
+                  <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                    For feedback, calculation inquiries, or questions about Swiss salary modeling, please reach out via email.
+                  </p>
                 </div>
               </div>
             </div>

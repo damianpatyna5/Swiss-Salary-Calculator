@@ -46,6 +46,17 @@ const DEFAULT_INPUTS: CalculatorInputs = {
   includeHealthInsurance: false,
   nbuRate: 1.2,
   ktgRate: 0.8,
+  residenceStatus: 'resident',
+  crossBorder: {
+    country: 'FR',
+    commuteType: 'daily',
+    hasFrenchTaxCertificate: true,
+    franceHealthOption: 'lamal',
+    teleworkPercent: 0,
+    hasGermanGrenzgangerCert: true,
+    italyRegime: 'new',
+    isWithin20kmZone: true,
+  },
 };
 
 export default function App() {
@@ -80,7 +91,7 @@ export default function App() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Left 5 Cols: Controls & Inputs */}
             <div className="lg:col-span-5 space-y-6">
-              <SalaryInputForm inputs={inputs} onChange={setInputs} />
+              <SalaryInputForm inputs={inputs} onChange={setInputs} onReset={handleReset} />
             </div>
 
             {/* Right 7 Cols: Streamlined Real-time Overview */}

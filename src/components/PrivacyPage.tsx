@@ -59,9 +59,8 @@ export const PrivacyPage: React.FC = () => {
             The operator of LohnLab.ch acts as the data controller in accordance with Article 5 of the Swiss Federal Act on Data Protection (revDSG):
           </p>
           <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs font-mono text-slate-700 space-y-0.5">
-            <div>LohnLab.ch — Swiss Salary &amp; Budget Technologies</div>
-            <div>Bahnhofstrasse 100, CH-8001 Zürich, Switzerland</div>
-            <div>Email: privacy@lohnlab.ch</div>
+            <div>LohnLab.ch — Independent Swiss Salary &amp; Budget Calculator</div>
+            <div>Contact: privacy@lohnlab.ch</div>
           </div>
         </section>
 
