@@ -3,6 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function() {
+        try {
+          var _f = window.fetch;
+          Object.defineProperty(window, 'fetch', {
+            configurable: true,
+            enumerable: true,
+            get: function() { return _f; },
+            set: function(val) { _f = val; }
+          });
+        } catch (e) {}
+      })();
+    </script>
     <title>Swiss Salary & Budget Calculator | Lohnrechner Schweiz</title>
     <meta name="description" content="Accurate Swiss net salary, budget planning, social security, child allowance, and tax calculator across all 26 cantons." />
     <meta property="og:title" content="Swiss Salary & Budget Calculator | Lohnrechner Schweiz" />
