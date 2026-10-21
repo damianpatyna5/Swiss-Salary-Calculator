@@ -101,7 +101,20 @@ export const PrivacyPage: React.FC = () => {
         </section>
 
         <section className="space-y-2">
-          <h2 className="text-base font-bold text-slate-900">5. Your Statutory Rights</h2>
+          <h2 className="text-base font-bold text-slate-900">5. Third-Party Advertising &amp; Cookies (Google AdSense)</h2>
+          <p>
+            To keep LohnLab.ch free for all users, we may display third-party advertisements served by Google AdSense:
+          </p>
+          <ul className="list-disc pl-5 space-y-1.5 text-xs text-slate-600">
+            <li>Third-party vendors, including Google, use cookies to serve ads based on a user&apos;s prior visits to this website or other websites on the Internet.</li>
+            <li>Google&apos;s use of advertising cookies enables it and its partners to serve ads based on your visit to LohnLab.ch and/or other sites across the web.</li>
+            <li>Users may opt out of personalized advertising at any time by visiting <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer" className="text-red-600 underline">Google Ads Settings</a> or through <a href="https://www.aboutads.info" target="_blank" rel="noopener noreferrer" className="text-red-600 underline">www.aboutads.info</a>.</li>
+            <li>For visitors located in the European Economic Area (EEA), UK, and Switzerland, advertising consent is requested and managed via a Google-certified Consent Management Platform (CMP) pursuant to Swiss revDSG and EU GDPR.</li>
+          </ul>
+        </section>
+
+        <section className="space-y-2">
+          <h2 className="text-base font-bold text-slate-900">6. Your Statutory Rights</h2>
           <p>
             Under Swiss data protection laws (revDSG Art. 25–29) and applicable European GDPR provisions, you have the right to request confirmation as to whether data concerning you is processed, to obtain information about such data, and to request correction or deletion where applicable.
           </p>
