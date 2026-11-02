@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { CalculatorInputs } from '../types/calculator';
 import { calculateAllCantonsComparison, formatCHF, formatPercent } from '../utils/calculator';
-import { Search, ArrowUpDown, Check, Building2 } from 'lucide-react';
+import { Search, ArrowUpDown, Check, Building2, HelpCircle, AlertCircle, TrendingUp } from 'lucide-react';
+import { Link } from './Link';
+import { AdPlacement } from './AdPlacement';
 
 interface CantonComparisonProps {
   inputs: CalculatorInputs;
@@ -244,6 +246,54 @@ export const CantonComparison: React.FC<CantonComparisonProps> = ({
           tax cantons.
         </div>
       </div>
+
+      {/* Deep Explanatory Guidance: How to Interpret Cantonal Tax Differences */}
+      <section className="pt-6 border-t border-slate-100 space-y-6 text-slate-800">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200">
+          <HelpCircle className="w-3.5 h-3.5" />
+          <span>Cantonal Comparison Guide</span>
+        </div>
+
+        <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+          How to Interpret Cantonal Tax Variations &amp; Total Cost of Living
+        </h3>
+
+        <div className="space-y-4 text-xs sm:text-sm text-slate-600 leading-relaxed">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+              <div className="font-bold text-slate-900 text-xs">Comparison Basis</div>
+              <p className="text-[11px] text-slate-600">
+                All 26 cantons are calculated holding your exact gross compensation, age, marital status, and child count constant, using the statutory social security scales and cantonal tax multipliers.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+              <div className="font-bold text-slate-900 text-xs">Municipal Multipliers (Steuerfuss)</div>
+              <p className="text-[11px] text-slate-600">
+                Each canton contains dozens of communes with distinct multipliers. Our comparison uses the cantonal benchmark / main economic commune. Within Canton Zurich or Vaud, moving 10 km can adjust local tax by 15%–30%.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+              <div className="font-bold text-slate-900 text-xs">Tax vs. Cost of Living</div>
+              <p className="text-[11px] text-slate-600">
+                Low tax does not necessarily equal low expenses. Cantons with low taxes (e.g. Zug, Schwyz) typically command significantly higher rental housing costs and limited vacancy rates compared to Neuchâtel, Valais, or Jura.
+              </p>
+            </div>
+          </div>
+
+          <p>
+            For complete technical formulas and references to ESTV and BFS source circulars, consult our{' '}
+            <Link href="/methodology/" className="text-red-600 underline font-semibold">
+              Calculation Methodology documentation
+            </Link>
+            .
+          </p>
+        </div>
+      </section>
+
+      <AdPlacement slot="5678901234" />
     </div>
   );
 };
+

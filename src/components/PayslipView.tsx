@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { CalculationResult } from '../types/calculator';
 import { formatCHF, formatPercent } from '../utils/calculator';
-import { FileText, Printer, User, Users } from 'lucide-react';
+import { FileText, Printer, User, Users, AlertCircle, HelpCircle, CheckCircle2 } from 'lucide-react';
+import { Link } from './Link';
+import { AdPlacement } from './AdPlacement';
 
 interface PayslipViewProps {
   result: CalculationResult;
@@ -128,7 +130,7 @@ export const PayslipView: React.FC<PayslipViewProps> = ({ result }) => {
           </div>
           <div>
             <h3 className="text-sm font-bold tracking-tight">
-              Official Swiss Payslip Preview (Lohnabrechnung)
+              Illustrative Swiss Payslip Preview (Estimated Lohnabrechnung)
             </h3>
             <p className="text-xs text-slate-300 mt-0.5">
               Canton {result.canton.name} ({result.canton.code}) · {currentMonths} Salary Model
@@ -507,6 +509,73 @@ export const PayslipView: React.FC<PayslipViewProps> = ({ result }) => {
           </div>
         </div>
       </div>
+
+      {/* Payslip Interpretation Guide */}
+      <section className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-5 text-slate-800 no-print">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200">
+          <HelpCircle className="w-3.5 h-3.5" />
+          <span>Understanding Your Swiss Lohnabrechnung</span>
+        </div>
+
+        <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+          How to Read Your Swiss Salary Statement
+        </h3>
+
+        <div className="space-y-4 text-xs sm:text-sm text-slate-600 leading-relaxed">
+          <p>
+            A Swiss payslip (<em>Lohnabrechnung</em>) is structured into clear chronological sections reflecting Swiss labor and social insurance law:
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+              <div className="font-bold text-slate-900 text-xs">1. Gross Pay (Bruttolohn)</div>
+              <p className="text-[11px] text-slate-600">
+                Your contractual base salary for the billing period. If you receive a 13th month payment or family allowances (<em>Familienzulagen</em>), these are credited here as taxable earnings.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+              <div className="font-bold text-slate-900 text-xs">2. Statutory Deductions (Abzüge)</div>
+              <p className="text-[11px] text-slate-600">
+                Mandatory employee shares: AHV/IV/EO (5.30%), ALV unemployment (1.10%), BVG occupational pension (3.5%–9.0% depending on age tier), and accident/sickness coverage.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+              <div className="font-bold text-slate-900 text-xs">3. Net Pay Before Taxes (Nettolohn)</div>
+              <p className="text-[11px] text-slate-600">
+                Gross salary minus statutory employee social deductions. For Swiss citizens and C-permit holders, this is normally the amount transferred to your bank account.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+              <div className="font-bold text-slate-900 text-xs">4. Withholding Tax (Quellensteuer)</div>
+              <p className="text-[11px] text-slate-600">
+                Only deducted at source if you hold a B or L work permit, or reside across the border as a Frontalier in Geneva or non-exempt cantons.
+              </p>
+            </div>
+          </div>
+
+          <div className="p-4 rounded-xl bg-amber-50/70 border border-amber-200 text-xs text-amber-950 space-y-1">
+            <div className="font-bold flex items-center gap-1.5">
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+              <span>Simulation Disclaimer</span>
+            </div>
+            <p>
+              This illustrative payslip preview is a mathematical simulation for planning purposes and does not replace an employer-issued payroll statement or an official tax assessment notice. For exact legal formulas and statutory citations, consult our{' '}
+              <Link href="/methodology/" className="text-red-600 underline font-semibold">
+                Calculation Methodology
+              </Link>
+              .
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <div className="no-print">
+        <AdPlacement slot="6789012345" />
+      </div>
     </div>
   );
 };
+

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { CalculationResult } from '../types/calculator';
 import { formatCHF, formatPercent } from '../utils/calculator';
 import { Wallet, PieChart, TrendingUp, Sliders, CheckCircle2, AlertCircle, Home, ShoppingCart, Shield, Car, Heart, Coffee, PiggyBank, Plus, Trash2, Users, Zap, Train, MoreHorizontal, Smartphone } from 'lucide-react';
+import { Link } from './Link';
+import { AdPlacement } from './AdPlacement';
 
 interface BudgetCalculatorProps {
   result: CalculationResult;
@@ -50,7 +52,7 @@ export const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ result, setA
       { id: 'car', name: 'Car', amount: car, icon: <Car className="w-4 h-4 text-indigo-600" /> },
       { id: 'transport', name: 'Public Transport', amount: transport, icon: <Train className="w-4 h-4 text-cyan-600" /> },
       { id: 'leisure', name: 'Leisure & Entertainment', amount: leisure, icon: <Coffee className="w-4 h-4 text-pink-600" /> },
-      { id: 'savings', name: 'Savings & Investments (Investments)', amount: savings, icon: <PiggyBank className="w-4 h-4 text-purple-600" /> },
+      { id: 'savings', name: 'Savings & Investments', amount: savings, icon: <PiggyBank className="w-4 h-4 text-purple-600" /> },
       { id: 'other', name: 'Other', amount: other, icon: <MoreHorizontal className="w-4 h-4 text-slate-600" /> },
     ];
   };
@@ -279,6 +281,58 @@ export const BudgetCalculator: React.FC<BudgetCalculatorProps> = ({ result, setA
           </form>
         </div>
       </div>
+
+      {/* Explanatory Guide: Interpreting Swiss Living Costs */}
+      <section className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-6 text-slate-800">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <PieChart className="w-3.5 h-3.5" />
+          <span>Swiss Living Costs Guide</span>
+        </div>
+
+        <h3 className="text-xl font-bold text-slate-900 tracking-tight">
+          How to Interpret Your Swiss Living Budget &amp; Expenses
+        </h3>
+
+        <div className="space-y-4 text-xs sm:text-sm text-slate-600 leading-relaxed">
+          <p>
+            Budgeting in Switzerland differs fundamentally from most European countries because <strong>mandatory basic health insurance (KVG / LAMal)</strong> is contracted individually and paid out of your monthly net pay, rather than withheld directly from payroll.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+              <div className="font-bold text-slate-900 text-xs">50% Needs (Fixed Costs)</div>
+              <p className="text-[11px] text-slate-600">
+                Housing rent or mortgage, ancillary utility fees (<em>Nebenkosten</em>), mandatory health insurance premiums, public transport commute pass, and basic groceries.
+              </p>
+            </div>
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+              <div className="font-bold text-slate-900 text-xs">30% Wants (Discretionary)</div>
+              <p className="text-[11px] text-slate-600">
+                Dining out, weekend recreation, ski passes, mobile phone plans, streaming services, and vacation travel.
+              </p>
+            </div>
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+              <div className="font-bold text-slate-900 text-xs">20% Savings &amp; Tax Reserve</div>
+              <p className="text-[11px] text-slate-600">
+                Third Pillar (Säule 3a) retirement deposits (up to CHF 7,056/year), emergency liquidity reserves, and provisioning for annual provisional tax bills (if subject to ordinary assessment).
+              </p>
+            </div>
+          </div>
+
+          <div className="p-4 rounded-xl bg-amber-50/70 border border-amber-200 text-xs text-amber-950 space-y-1.5">
+            <div className="font-bold flex items-center gap-1.5">
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+              <span>Statistical Source &amp; Benchmark Assumptions</span>
+            </div>
+            <p>
+              The default expense values in this calculator are illustrative planning assumptions grounded in the <strong>Swiss Federal Statistical Office (BFS / OFS)</strong> Household Budget Surveys (<em>Haushaltsbudgeterhebung HABE</em>) and reference benchmarks from <strong>Budgetberatung Schweiz</strong>. Actual costs will vary depending on your choice of canton (e.g. Zurich/Geneva vs. Uri/Glarus), health insurance deductible (<em>Franchise</em>), and housing size.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <AdPlacement slot="4567890123" />
     </div>
   );
 };
+

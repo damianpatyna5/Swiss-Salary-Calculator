@@ -1,171 +1,120 @@
 import React, { useState } from 'react';
-import { Mail, Send, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Mail, Copy, Check, ExternalLink, HelpCircle, MessageSquare } from 'lucide-react';
+import { Link } from './Link';
 
 export const ContactPage: React.FC = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: 'General Question',
-    message: '',
-  });
-  const [submitted, setSubmitted] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const email = 'contact@lohnlab.ch';
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.name || !formData.email || !formData.message) return;
-    setSubmitted(true);
+  const handleCopyEmail = () => {
+    navigator.clipboard.writeText(email);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
   };
 
+  const subjectOptions = [
+    { label: 'Cantonal Tax & Rate Feedback', subject: 'Rate feedback for Canton: ' },
+    { label: 'Cross-Border Calculation Question', subject: 'Cross-border calculation question' },
+    { label: 'Feature Recommendation', subject: 'Feature recommendation for LohnLab.ch' },
+    { label: 'General Technical Inquiry', subject: 'General technical inquiry' },
+  ];
+
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
+    <article className="space-y-8 max-w-3xl mx-auto">
       {/* Header */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-8 shadow-xs space-y-3">
+      <header className="bg-white rounded-2xl border border-slate-200/80 p-8 shadow-xs space-y-3">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200">
           <Mail className="w-3.5 h-3.5" />
-          <span>Get in Touch</span>
+          <span>Contact Information</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
           Contact LohnLab.ch
         </h1>
         <p className="text-sm text-slate-600 leading-relaxed max-w-2xl">
-          Have feedback on cantonal tax rates, questions about Swiss social deductions, or a feature suggestion? Send us a message and our team will get back to you.
+          Have factual feedback regarding Swiss social security scales, cantonal tax rates, or cross-border treaty guidelines? We welcome constructive updates and suggestions.
+        </p>
+      </header>
+
+      {/* Direct Email Card */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-8 shadow-xs space-y-6">
+        <h2 className="text-lg font-bold text-slate-900">Direct Email Contact</h2>
+        <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+          LohnLab.ch is an independent digital tool. All calculator inputs and simulation data remain strictly local to your browser; we do not store customer profiles or payroll records. For all inquiries, please reach out directly via email:
+        </p>
+
+        <div className="flex flex-col sm:flex-row items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+          <div className="font-mono font-bold text-slate-900 text-base sm:text-lg flex-1 text-center sm:text-left">
+            {email}
+          </div>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={handleCopyEmail}
+              className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-semibold bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-4 h-4 text-emerald-600" />
+                  <span className="text-emerald-700">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4 text-slate-500" />
+                  <span>Copy Address</span>
+                </>
+              )}
+            </button>
+            <a
+              href={`mailto:${email}?subject=Inquiry%20regarding%20LohnLab.ch`}
+              className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-semibold bg-red-600 hover:bg-red-700 text-white flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+            >
+              <Mail className="w-4 h-4" />
+              <span>Send Email</span>
+            </a>
+          </div>
+        </div>
+
+        {/* Inquiry Subject Templates */}
+        <div className="space-y-3 pt-4 border-t border-slate-100">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+            Pre-Formatted Subject Templates
+          </h3>
+          <p className="text-xs text-slate-500">
+            Click any template below to open your email client with a pre-filled subject line:
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {subjectOptions.map((opt, i) => (
+              <a
+                key={i}
+                href={`mailto:${email}?subject=${encodeURIComponent(opt.subject)}`}
+                className="p-3 rounded-lg border border-slate-200 hover:border-red-300 hover:bg-red-50/40 text-xs text-slate-700 hover:text-red-700 transition-colors flex items-center justify-between group"
+              >
+                <span>{opt.label}</span>
+                <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-red-600" />
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Helpful Links */}
+      <div className="p-6 bg-slate-100/70 rounded-2xl border border-slate-200/80 space-y-2 text-xs text-slate-600">
+        <div className="font-bold text-slate-800 flex items-center gap-1.5">
+          <HelpCircle className="w-4 h-4 text-slate-500" />
+          Looking for statutory details or calculation rules?
+        </div>
+        <p>
+          Before emailing about formula specifics, check our{' '}
+          <Link href="/methodology/" className="text-red-600 underline font-semibold">
+            Calculation Methodology
+          </Link>{' '}
+          and{' '}
+          <Link href="/guide/" className="text-red-600 underline font-semibold">
+            Swiss Salary Guide
+          </Link>
+          , where we detail applicable federal statutes, BSV scales, and BVG age brackets.
         </p>
       </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Contact Form */}
-        <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-7 shadow-xs">
-          {submitted ? (
-            <div className="py-12 text-center space-y-4">
-              <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle2 className="w-8 h-8" />
-              </div>
-              <h3 className="text-lg font-bold text-slate-900">Message Received!</h3>
-              <p className="text-xs text-slate-600 max-w-sm mx-auto leading-relaxed">
-                Thank you, {formData.name}. We have received your inquiry and will respond to <span className="font-semibold text-slate-900">{formData.email}</span> within 24–48 business hours.
-              </p>
-              <button
-                type="button"
-                onClick={() => {
-                  setSubmitted(false);
-                  setFormData({ name: '', email: '', subject: 'General Question', message: '' });
-                }}
-                className="mt-4 px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
-              >
-                Send Another Message
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <h2 className="text-base font-bold text-slate-900">Send Us a Direct Note</h2>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Thomas Müller"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-600"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  required
-                  placeholder="name@example.ch"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-600"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Inquiry Topic
-                </label>
-                <select
-                  value={formData.subject}
-                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-600 cursor-pointer"
-                >
-                  <option value="General Question">General Inquiry</option>
-                  <option value="Cantonal Tax Feedback">Cantonal / Municipal Tax Feedback</option>
-                  <option value="Feature Suggestion">Feature Suggestion or Calculation Improvement</option>
-                  <option value="Bug Report">Technical Issue or Bug Report</option>
-                  <option value="Partnership">Partnership or Press Inquiry</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Message
-                </label>
-                <textarea
-                  required
-                  rows={4}
-                  placeholder="Describe your question or feedback..."
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-600"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs"
-              >
-                <Send className="w-3.5 h-3.5" />
-                <span>Submit Message</span>
-              </button>
-            </form>
-          )}
-        </div>
-
-        {/* Right Column: Contact Details & Info */}
-        <div className="lg:col-span-5 space-y-4">
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
-            <h3 className="text-sm font-bold text-slate-900">Direct Contact Information</h3>
-
-            <div className="space-y-3.5 text-xs">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center shrink-0">
-                  <Mail className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="font-semibold text-slate-800">Email Contact</div>
-                  <a
-                    href="mailto:contact@lohnlab.ch"
-                    className="text-red-600 hover:underline font-mono text-[11px]"
-                  >
-                    contact@lohnlab.ch
-                  </a>
-                  <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
-                    For feedback, calculation inquiries, or questions about Swiss salary modeling, please reach out via email.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-amber-50/70 border border-amber-200/80 rounded-xl p-4 text-xs space-y-2">
-            <div className="flex items-center gap-2 font-semibold text-amber-900">
-              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-              <span>Tax Authority Notice</span>
-            </div>
-            <p className="text-[11px] text-amber-800 leading-relaxed">
-              For official tax appeals, official rulings, or formal tax return submissions, please contact your local cantonal tax office (Kantonales Steueramt) directly.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+    </article>
   );
 };

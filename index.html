@@ -16,12 +16,18 @@
         } catch (e) {}
       })();
     </script>
-    <title>Swiss Salary & Budget Calculator | Lohnrechner Schweiz</title>
-    <meta name="description" content="Accurate Swiss net salary, budget planning, social security, child allowance, and tax calculator across all 26 cantons." />
-    <meta property="og:title" content="Swiss Salary & Budget Calculator | Lohnrechner Schweiz" />
-    <meta property="og:description" content="Accurate Swiss net salary, budget planning, social security, child allowance, and tax calculator across all 26 cantons." />
+    <title>Swiss Salary Calculator 2025/2026 | Gross to Net Lohnrechner Schweiz</title>
+    <meta name="description" content="Calculate your exact Swiss net take-home pay, social security (AHV/ALV/BVG), and estimated federal, cantonal, and municipal taxes across all 26 cantons." />
+    <link rel="canonical" href="https://lohnlab.ch/" />
+    <meta property="og:title" content="Swiss Salary Calculator 2025/2026 | Gross to Net Lohnrechner Schweiz" />
+    <meta property="og:description" content="Calculate your exact Swiss net take-home pay, social security (AHV/ALV/BVG), and estimated federal, cantonal, and municipal taxes across all 26 cantons." />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://lohnlab.ch/" />
+    <meta property="og:site_name" content="LohnLab.ch" />
+    <meta property="og:locale" content="en_CH" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Swiss Salary Calculator 2025/2026 | Gross to Net Lohnrechner Schweiz" />
+    <meta name="twitter:description" content="Calculate your exact Swiss net take-home pay, social security (AHV/ALV/BVG), and estimated federal, cantonal, and municipal taxes across all 26 cantons." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,10 +36,52 @@
     <meta name="google-adsense-account" content="ca-pub-8017910120366285">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8017910120366285"
       crossorigin="anonymous"></script>
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://lohnlab.ch/#website",
+          "url": "https://lohnlab.ch/",
+          "name": "LohnLab.ch",
+          "description": "Independent Swiss Gross-to-Net Salary and Living Budget Calculator across all 26 Cantons",
+          "publisher": {
+            "@type": "Organization",
+            "name": "LohnLab.ch",
+            "url": "https://lohnlab.ch/"
+          }
+        },
+        {
+          "@type": "WebApplication",
+          "@id": "https://lohnlab.ch/#app",
+          "name": "Swiss Gross-to-Net Salary Calculator",
+          "url": "https://lohnlab.ch/",
+          "applicationCategory": "FinanceApplication",
+          "operatingSystem": "All",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "CHF"
+          },
+          "featureList": [
+            "Gross to net salary calculation",
+            "Statutory 1st pillar AHV/IV/EO contributions",
+            "ALV unemployment insurance ceiling",
+            "2nd pillar BVG age-based pension deductions",
+            "Federal, cantonal, and municipal income tax estimations across 26 cantons",
+            "Cross-border frontalier taxation for France, Germany, and Italy",
+            "Monthly household living cost and budget planner"
+          ]
+        }
+      ]
+    }
+    </script>
   </head>
   <body class="bg-slate-50 text-slate-900 antialiased font-sans selection:bg-red-500 selection:text-white">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

@@ -519,7 +519,7 @@ export const TaxBreakdownCard: React.FC<TaxBreakdownCardProps> = ({
               className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-slate-900 text-white font-semibold hover:bg-slate-800 transition-colors cursor-pointer shadow-xs"
             >
               <FileText className="w-4 h-4 text-red-400" />
-              <span>View Full Official Payslip</span>
+              <span>View Estimated Payslip</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           )}

@@ -1,0 +1,10 @@
+# Robots.txt for LohnLab.ch
+User-agent: *
+Allow: /
+
+# Ensure search & AdSense crawlers have full access to assets
+Allow: /assets/
+Allow: /favicon.svg
+
+# Canonical XML Sitemap
+Sitemap: https://lohnlab.ch/sitemap.xml
